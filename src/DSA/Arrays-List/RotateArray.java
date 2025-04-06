@@ -39,9 +39,9 @@ class Solution {
     }
 }
 
-class Rotate-array {
+class RotateArray {
     public static void main(String[] args) {
         Solution s = new Solution();
-        s.rotate({1,2,3,4,5,6,7}, 3);
+        s.rotate(new int[]{1,2,3,4,5,6,7}, 3);
     }
 }
