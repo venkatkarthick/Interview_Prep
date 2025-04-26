@@ -434,3 +434,387 @@ class Solution {
     }
 }
 ```
+14. https://leetcode.com/problems/minimum-absolute-difference/description/
+>Given an array of distinct integers arr, find all pairs of elements with the minimum absolute difference of any two elements.
+Return a list of pairs in ascending order(with respect to pairs), each pair [a, b] follows
+a, b are from arr
+a < b
+b - a equals to the minimum absolute difference of any two elements in arr
+```
+Input: arr = [4,2,1,3]
+Output: [[1,2],[2,3],[3,4]]
+Explanation: The minimum absolute difference is 1. List all pairs with difference equal to 1 in ascending order.
+```
+```java []
+class Solution {
+    public List<List<Integer>> minimumAbsDifference(int[] arr) {
+        Arrays.sort(arr);
+        int n=arr.length, absMin=Integer.MAX_VALUE;
+        List<List<Integer>> ans=new ArrayList<>();
+        for(int i=1; i<n; i++) {
+            absMin=Math.min(absMin, arr[i]-arr[i-1]);
+        }
+        //System.out.println(absMin+Arrays.toString(arr));
+        for(int i=1; i<n; i++) {
+            if(arr[i]-arr[i-1]==absMin) {
+                ans.add(List.of(arr[i-1], arr[i]));
+            }
+        }
+        return ans;
+    }
+}
+//-14,-10,-4,3,8,19,23,27
+```
+15. https://leetcode.com/problems/minimum-size-subarray-sum/description/
+> Given an array of positive integers nums and a positive integer target, return the minimal length of a subarray whose sum is greater than or equal to target. If there is no such subarray, return 0 instead.
+```
+Input: target = 7, nums = [2,3,1,2,4,3]
+Output: 2
+Explanation: The subarray [4,3] has the minimal length under the problem constraint.
+```
+```java []
+class Solution {
+    public int minSubArrayLen(int target, int[] nums) {
+        int n = nums.length, sum=0, len=Integer.MAX_VALUE;
+        for (int i = 0, j=0; i < n; i++) {
+            sum+=nums[i];
+            if(sum>=target) {
+                while(true) {
+                    sum-=nums[j];
+                    if(sum<target) {
+                        len=Math.min(len, i-j+1);
+                        j++;
+                        break;
+                    }
+                    j++;
+                }
+            }
+        }
+        return len==Integer.MAX_VALUE?0:len;
+    }
+}
+
+```
+16. https://leetcode.com/problems/single-number/description/
+> Given a non-empty array of integers nums, every element appears twice except for one. Find that single one.
+You must implement a solution with a linear runtime complexity and use only constant extra space.
+```
+Input: nums = [2,2,1]
+Output: 1
+```
+```java []
+class Solution {
+    public int singleNumber(int[] nums) {
+        int xorVal=0, n=nums.length;
+        for(int i=0; i<n; i++) {
+            xorVal=xorVal^nums[i];
+        }
+        return xorVal;
+    }
+}
+```
+17. https://leetcode.com/problems/coin-change/description/
+> You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money.
+Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.
+You may assume that you have an infinite number of each kind of coin.
+
+```
+Input: coins = [1,2,5], amount = 11
+Output: 3
+Explanation: 11 = 5 + 5 + 1
+```
+```java []
+class Solution {
+
+    int[][] memo;
+    
+    // public int minCoin(int ind, int sum, int[] coins) {
+    //     if(sum==0) return 0;
+    //     if(sum<0 || ind<0) return -1;
+    //     if(memo[ind][sum]!=0) return memo[ind][sum];
+
+    //     int op1=minCoin(ind, sum-coins[ind], coins);
+    //     int op2=minCoin(ind-1, sum, coins);
+    //     if(op1>-1 && op2>-1) return memo[ind][sum]=Math.min(op1+1, op2);
+    //     if(op1>-1) return memo[ind][sum]=op1+1;
+    //     else return memo[ind][sum]=op2;
+    // } 
+
+    public int coinChange(int[] coins, int amount) {
+        //Recursion logic
+        // memo=new int[coins.length][amount+1]; 
+        // int res=minCoin(coins.length-1, amount, coins);
+        // return res;
+
+        //O(coins.length*amount) logic
+        //consider ind in y axis(column) and sum in x axis(row). 
+        //If y varies by 1, we can use the single array itself
+        int[] dp=new int[amount+1];
+        Arrays.fill(dp, amount+1);
+        dp[0]=0;
+        for(int j=0; j<coins.length; j++) {
+            for(int i=coins[j]; i<amount+1; i++) {
+                dp[i]=Math.min(dp[i], 1+dp[i-coins[j]]);
+            }
+        }
+        return dp[amount]==amount+1?-1:dp[amount];
+    }
+}
+```
+18. https://leetcode.com/problems/climbing-stairs/description/
+> You are climbing a staircase. It takes n steps to reach the top.
+Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+```
+Input: n = 2
+Output: 2
+Explanation: There are two ways to climb to the top.
+1. 1 step + 1 step
+2. 2 steps
+```
+```java []
+class Solution {
+
+    //int memo[];
+
+    // public int climb(int steps) {
+    //     if(steps==0) return 1;
+    //     if(steps<0) return 0;
+    //     if(memo[steps]!=0) return memo[steps];
+
+    //     return memo[steps]=climb(steps-1)+climb(steps-2);
+    // }
+
+    public int climbStairs(int n) {
+        //Recursion
+        // memo=new int[n+1];
+        // int res=climb(n);
+        // System.out.println(Arrays.toString(memo));
+        // return res;
+
+        //dp solution
+        if(n==0 || n==1) return n;
+        int[] dp=new int[n+1];
+        dp[1]=1;dp[2]=2;
+        for(int i=3; i<n+1; i++) {
+            dp[i]=dp[i-1]+dp[i-2];
+        }
+        return dp[n];
+    }
+}
+```
+19. http://leetcode.com/problems/maximum-subarray/description/
+> Given an integer array nums, find the subarray with the largest sum, and return its sum
+
+```
+Input: nums = [-2,1,-3,4,-1,2,1,-5,4]
+Output: 6
+Explanation: The subarray [4,-1,2,1] has the largest sum 6.
+```
+```java []
+class Solution {
+    public int maxSubArray(int[] nums) {
+        //kadane's algorithm
+        int sum=0, max_sum=nums[0];
+        for(int i=0; i<nums.length; i++) {
+            sum+=nums[i];
+            max_sum=Math.max(max_sum, sum);
+            if(sum<0) sum=0;
+        }
+        return max_sum;
+    }
+}
+```
+20. http://leetcode.com/problems/counting-bits/description/
+> Given an integer n, return an array ans of length n + 1 such that for each i (0 <= i <= n), ans[i] is the number of 1's in the binary representation of i.
+```
+Input: n = 5
+Output: [0,1,1,2,1,2]
+Explanation:
+0 --> 0
+1 --> 1
+2 --> 10
+3 --> 11
+4 --> 100
+5 --> 101
+6 --> 110
+7 --> 111
+8 --> 1000
+9 --> 1001
+10 --> 1010
+11 --> 1011
+12 --> 1100
+```
+```java []
+class Solution {
+    public int[] countBits(int n) {
+        //O(nlogn) solution
+        // int[] ans=new int[n+1];
+        // for(int i=1; i<=n; i++) {
+        //     int count=0;
+        //     int x=i;
+        //     while(x!=0) {
+        //         count+=(x&1);
+        //         x=x>>1;
+        //     }
+        //     ans[i]=count;
+        // }
+        // return ans;
+
+        if(n==0) return new int[]{0};
+        int[] dp=new int[n+1];
+        dp[1]=1;
+        for(int i=1; i<=n/2; i++) {
+            dp[i*2]=dp[i];
+            if(i*2+1<=n)
+                dp[i*2+1]=dp[i]+1;
+        }
+        return dp;
+    }
+}
+```
+21. https://leetcode.com/problems/range-sum-query-immutable/description/
+> Given an integer array nums, handle multiple queries of the following type:
+Calculate the sum of the elements of nums between indices left and right inclusive where left <= right.
+Implement the NumArray class:
+NumArray(int[] nums) Initializes the object with the integer array nums.
+int sumRange(int left, int right) Returns the sum of the elements of nums between indices left and right inclusive (i.e. nums[left] + nums[left + 1] + ... + nums[right]).
+```
+Input
+["NumArray", "sumRange", "sumRange", "sumRange"]
+[[[-2, 0, 3, -5, 2, -1]], [0, 2], [2, 5], [0, 5]]
+Output
+[null, 1, -1, -3]
+
+Explanation
+NumArray numArray = new NumArray([-2, 0, 3, -5, 2, -1]);
+numArray.sumRange(0, 2); // return (-2) + 0 + 3 = 1
+numArray.sumRange(2, 5); // return 3 + (-5) + 2 + (-1) = -1
+numArray.sumRange(0, 5); // return (-2) + 0 + 3 + (-5) + 2 + (-1) = -3
+```
+```java []
+class NumArray {
+
+    int[] sumArray;
+
+    public NumArray(int[] nums) {
+        int n=nums.length;
+        sumArray=new int[n];
+        sumArray[0]=nums[0];
+        for(int i=1; i<n; i++) {
+            sumArray[i]=sumArray[i-1]+nums[i];
+        }
+    }
+    
+    public int sumRange(int left, int right) {
+        if(left==0) return sumArray[right];
+        return sumArray[right]-sumArray[left-1];
+    }
+}
+
+/**
+ * Your NumArray object will be instantiated and called as such:
+ * NumArray obj = new NumArray(nums);
+ * int param_1 = obj.sumRange(left,right);
+ */
+```
+22. https://leetcode.com/problems/letter-case-permutation/description/
+> Given a string s, you can transform every letter individually to be lowercase or uppercase to create another string.
+Return a list of all possible strings we could create. Return the output in any order.
+```
+Input: s = "a1b2"
+Output: ["a1b2","a1B2","A1b2","A1B2"]
+```
+```java []
+class Solution {
+
+    List<String> ans;
+
+    public void findPermutations(int ind, StringBuilder s) {
+        if(ind>=s.length()) return ;
+        if(s.charAt(ind)>='0' && s.charAt(ind)<='9') findPermutations(ind+1, s);
+        else{
+            StringBuilder mod=new StringBuilder(s);
+            char ch=mod.charAt(ind);
+            if(ch>='a' && ch<='z') {
+                mod.setCharAt(ind, (char)(ch+'A'-'a'));
+            } else {
+                mod.setCharAt(ind, (char)(ch+'a'-'A'));
+            }
+            ans.add(mod.toString());
+            findPermutations(ind+1, s);
+            findPermutations(ind+1, mod);
+        }
+    }
+
+    public List<String> letterCasePermutation(String s) {
+        ans=new ArrayList<>();
+        ans.add(s);
+        findPermutations(0, new StringBuilder(s));
+        return ans;
+    }
+}
+```
+23. https://leetcode.com/problems/subsets/description/
+> Given an integer array nums of unique elements, return all possible subsets (the power set).
+The solution set must not contain duplicate subsets. Return the solution in any order.
+```
+Input: nums = [1,2,3]
+Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+```
+```java []
+class Solution {
+
+    List<List<Integer>> ans=new ArrayList();
+
+    public void findSubsets(int ind, int[] nums, List<Integer> subset) {
+        if(ind==-1) {
+            ans.add(subset);
+            return ;
+        }
+        findSubsets(ind-1, nums, subset);
+        List<Integer> newSubset=new ArrayList(subset);
+        newSubset.add(nums[ind]);
+        findSubsets(ind-1, nums, newSubset);
+    }
+
+    public List<List<Integer>> subsets(int[] nums) {
+        findSubsets(nums.length-1, nums, new ArrayList<>());
+        return ans;
+    }
+}
+```
+24. https://leetcode.com/problems/combinations/description/
+> Given two integers n and k, return all possible combinations of k numbers chosen from the range [1, n].
+You may return the answer in any order.
+
+```
+Input: n = 4, k = 2
+Output: [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+Explanation: There are 4 choose 2 = 6 total combinations.
+Note that combinations are unordered, i.e., [1,2] and [2,1] are considered to be the same combination.
+```
+```java []
+class Solution {
+
+    List<List<Integer>> ans=new ArrayList();
+
+    public void findSubSet(int num, int k, List<Integer> subset) {
+        if(subset.size()==k) {
+            ans.add(new ArrayList(subset));
+            return ;
+        }
+
+        for(int i=num; i>=1; i--) {
+            subset.add(i);
+            findSubSet(i-1, k, subset);
+            subset.remove(subset.size()-1);
+        }
+    }
+
+    public List<List<Integer>> combine(int n, int k) {
+        findSubSet(n, k, new ArrayList());
+        return ans;
+    }
+}
+```
+ 
