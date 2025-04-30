@@ -817,4 +817,634 @@ class Solution {
     }
 }
 ```
- 
+25. https://leetcode.com/problems/permutations/description/
+> Given an array nums of distinct integers, return all the possible permutations. You can return the answer in any order.
+```
+Input: nums = [1,2,3]
+Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+```
+```java []
+class Solution {
+
+    List<List<Integer>> ans=new ArrayList();
+
+    public void findPermutation(int ind, int[] nums, List<Integer> subset) {
+        if(subset.size()==nums.length) {
+            ans.add(new ArrayList(subset));
+            return ;
+        }
+
+        for(int i=0; i<nums.length; i++) {
+            if(nums[i]!=30) {
+                subset.add(nums[i]);
+                int temp=nums[i];
+                nums[i]=30;
+                findPermutation(i+1, nums, subset);
+                nums[i]=temp;
+                subset.remove(subset.size()-1);
+            }
+        }
+    }
+
+    public List<List<Integer>> permute(int[] nums) {
+        findPermutation(0, nums, new ArrayList());
+        return ans;
+    }
+}
+```
+26. https://leetcode.com/problems/middle-of-the-linked-list/description/
+> Given the head of a singly linked list, return the middle node of the linked list.
+If there are two middle nodes, return the second middle node.
+```
+Input: head = [1,2,3,4,5]
+Output: [3,4,5]
+Explanation: The middle node of the list is node 3.
+```
+```java []
+/**
+ * Definition for singly-linked list.
+ * public class ListNode {
+ *     int val;
+ *     ListNode next;
+ *     ListNode() {}
+ *     ListNode(int val) { this.val = val; }
+ *     ListNode(int val, ListNode next) { this.val = val; this.next = next; }
+ * }
+ */
+class Solution {
+    public ListNode middleNode(ListNode head) {
+        ListNode fast=head, slow=head;
+        while(fast!=null && fast.next!=null) {
+            fast=fast.next.next;
+            slow=slow.next;
+        }
+        return slow;
+    }
+}
+```
+27. https://leetcode.com/problems/linked-list-cycle/description/
+> Given head, the head of a linked list, determine if the linked list has a cycle in it.
+There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Internally, pos is used to denote the index of the node that tail's next pointer is connected to. Note that pos is not passed as a parameter.
+Return true if there is a cycle in the linked list. Otherwise, return false.
+```
+Input: head = [3,2,0,-4], pos = 1
+Output: true
+Explanation: There is a cycle in the linked list, where the tail connects to the 1st node (0-indexed).
+```
+```java []
+public class Solution {
+    public boolean hasCycle(ListNode head) {
+        ListNode fast=head, slow=head;
+        while(fast!=null && fast.next!=null) {
+            fast=fast.next.next;
+            slow=slow.next;
+            if(fast==slow) return true;
+        }
+        return false;
+    }
+}
+```
+28. https://leetcode.com/problems/reverse-linked-list/description/
+> Given the head of a singly linked list, reverse the list, and return the reversed list.
+```
+Input: head = [1,2,3,4,5]
+Output: [5,4,3,2,1]
+```
+```java []
+class Solution {
+
+    public void printList(ListNode head) {
+        for(; head!=null; head=head.next) System.out.print(head.val+" ");
+        System.out.println();
+    }
+
+    public ListNode reverseList(ListNode head) {
+        if(head==null) return head;
+        ListNode root=head, prev=head;
+        root=root.next;
+        head.next=null;
+        while(root!=null) {
+            ListNode temp=root.next;
+            root.next=prev;
+            prev=root;
+            root=temp;
+        }
+        return prev;
+    }
+}
+```
+29. https://leetcode.com/problems/remove-linked-list-elements/description/
+> Given the head of a linked list and an integer val, remove all the nodes of the linked list that has Node.val == val, and return the new head.
+```
+Input: head = [1,2,6,3,4,5,6], val = 6
+Output: [1,2,3,4,5]
+```
+```java []
+class Solution {
+    public ListNode removeElements(ListNode head, int val) {
+        for(; head!=null && head.val==val; head=head.next);
+        ListNode prev=head, root=head;
+        for(; head!=null; head=head.next) {
+            if(head.val==val) {
+                prev.next=head.next;
+                continue;
+            }
+            prev=head;
+        }
+        return root;
+    }
+}
+```
+30. https://leetcode.com/problems/reverse-linked-list-ii/description/
+> Given the head of a singly linked list and two integers left and right where left <= right, reverse the nodes of the list from position left to position right, and return the reversed list.
+```
+Input: head = [1,2,3,4,5], left = 2, right = 4
+Output: [1,4,3,2,5]
+```
+```java []
+class Solution {
+    public ListNode reverseBetween(ListNode head, int left, int right) {
+        ListNode root=head, prev=head, leftBeforeNode=null, leftNode=head;
+        int count=0;
+        
+        for(; root!=null; ) {
+            count++;
+            if(count==left-1) {
+                leftNode=root.next;
+                leftBeforeNode=root;
+            }
+            if(count==left) prev=root;
+            if(count>left && count<=right) {
+                if(count==right) {
+                    if(leftNode!=head) {
+                        leftBeforeNode.next=root;
+                    } else {
+                        head=root;
+                    }
+                    leftNode.next=root.next;
+                }
+                ListNode temp=root.next;
+                root.next=prev;
+                prev=root;
+                root=temp;
+                continue;
+            }
+            root=root.next;
+        }
+        return head;
+    }
+}
+```
+31. https://leetcode.com/problems/palindrome-linked-list/description/
+> Given the head of a singly linked list, return true if it is a palindrome or false otherwise.
+```
+Input: head = [1,2,2,1]
+Output: true
+```
+```java []
+class Solution {
+    public void printLinkedList(ListNode head) {
+        System.out.println("Slow");
+        for( ;head!=null; head=head.next) System.out.print(head.val);
+    }
+
+
+    public boolean isPalindrome(ListNode head) {
+        if(head.next==null) return true;
+        //Reverse till middle and compare whether both slow and fast pointers hold same value
+        ListNode slow=head, fast=head, prev=null;
+        while(fast!=null && fast.next!=null) {
+            fast=fast.next.next;
+            //Add Reverse logic for slow ptr
+            ListNode temp=slow.next;
+            slow.next=prev;
+            prev=slow;
+            slow=temp;
+        }
+        ListNode left=prev, right=slow;
+        if(fast!=null) right=slow.next; //For odd array
+        while(left!=null && right!=null) {
+            if(left.val!=right.val) return false;
+            left=left.next;
+            right=right.next; 
+        }
+        return left==null && right==null;
+    }
+}
+```
+32. https://leetcode.com/problems/merge-two-sorted-lists/description/
+> You are given the heads of two sorted linked lists list1 and list2.
+Merge the two lists into one sorted list. The list should be made by splicing together the nodes of the first two lists.
+Return the head of the merged linked list.
+```
+Input: list1 = [1,2,4], list2 = [1,3,4]
+Output: [1,1,2,3,4,4]
+```
+```java []
+class Solution {
+    public ListNode mergeTwoLists(ListNode list1, ListNode list2) {
+        if(list1==null) return list2;
+        if(list2==null) return list1;
+        ListNode head=list1.val<=list2.val?list1:list2, root=head;
+        if(head==list1) list1=list1.next;
+        else list2=list2.next;
+        while(list1!=null && list2!=null) {
+            if(list1.val<=list2.val) {
+                root.next=list1;
+                list1=list1.next;
+            } else {
+                root.next=list2;
+                list2=list2.next;
+            }
+            root=root.next;
+        }
+        if(list1!=null) root.next=list1;
+        if(list2!=null) root.next=list2;
+        return head;
+    }
+}
+```
+33. https://leetcode.com/problems/min-stack/description/
+> Design a stack that supports push, pop, top, and retrieving the minimum element in constant time.
+Implement the MinStack class:
+MinStack() initializes the stack object.
+void push(int val) pushes the element val onto the stack.
+void pop() removes the element on the top of the stack.
+int top() gets the top element of the stack.
+int getMin() retrieves the minimum element in the stack.
+You must implement a solution with O(1) time complexity for each function.
+
+```
+Input
+["MinStack","push","push","push","getMin","pop","top","getMin"]
+[[],[-2],[0],[-3],[],[],[],[]]
+
+Output
+[null,null,null,null,-3,null,0,-2]
+
+Explanation
+MinStack minStack = new MinStack();
+minStack.push(-2);
+minStack.push(0);
+minStack.push(-3);
+minStack.getMin(); // return -3
+minStack.pop();
+minStack.top();    // return 0
+minStack.getMin(); // return -2
+```
+```java []
+class MinStack {
+
+    Node top;
+
+    public MinStack() {
+        top=null;
+    }
+    
+    public void push(int val) {
+        int minEle=val;
+        if(top==null) {
+            top=new Node(val, minEle);
+            return ;
+        }
+        minEle=Math.min(val, top.min);
+        Node newNode=new Node(val, minEle); 
+        newNode.prev=top;
+        top=newNode;
+    }
+    
+    public void pop() {
+        top=top.prev;
+    }
+    
+    public int top() {
+        return top.val;
+    }
+    
+    public int getMin() {
+        return top.min;
+    }
+}
+
+class Node {
+    int val,min;
+    Node prev;
+    Node(int val, int min) {
+        this.val=val;
+        this.min=min;
+    }
+}
+
+/**
+ * Your MinStack object will be instantiated and called as such:
+ * MinStack obj = new MinStack();
+ * obj.push(val);
+ * obj.pop();
+ * int param_3 = obj.top();
+ * int param_4 = obj.getMin();
+ */
+```
+34. https://leetcode.com/problems/valid-parentheses/description/
+> Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.
+An input string is valid if:
+Open brackets must be closed by the same type of brackets.
+Open brackets must be closed in the correct order.
+Every close bracket has a corresponding open bracket of the same type.
+```
+Input: s = "([])"
+Output: true
+```
+```java []
+class Solution {
+    public boolean isValid(String s) {
+        char[] ch=s.toCharArray();
+        int n=s.length();
+        int top=-1;
+        char[] stack=new char[n];
+        Map<Character, Character> parMap=Map.of(')','(',']','[','}','{');
+        for(int i=0; i<n; i++) {
+            if(List.of('(','[','{').contains(ch[i])) {
+                stack[++top]=ch[i];
+            } else {
+                if(top==-1 || stack[top]!=parMap.get(ch[i])) return false;
+                top--;
+            }
+        }
+        return top==-1;
+    }
+}
+```
+35. https://leetcode.com/problems/evaluate-reverse-polish-notation/description/
+> You are given an array of strings tokens that represents an arithmetic expression in a Reverse Polish Notation.
+Evaluate the expression. Return an integer that represents the value of the expression.
+Note that:
+The valid operators are '+', '-', '*', and '/'.
+Each operand may be an integer or another expression.
+The division between two integers always truncates toward zero.
+There will not be any division by zero.
+The input represents a valid arithmetic expression in a reverse polish notation.
+The answer and all the intermediate calculations can be represented in a 32-bit integer.
+```
+Input: tokens = ["2","1","+","3","*"]
+Output: 9
+Explanation: ((2 + 1) * 3) = 9
+```
+```java []
+class Solution {
+    public int evalRPN(String[] tokens) {
+        //LinkedList implementation of stack
+        Node top=null;
+        for(String token:tokens) {
+            if("+-*/".contains(token)) {
+                int val2=top.val;
+                top=top.prev;
+                int val1=top.val;
+                top=top.prev;
+                int ans=0;
+                switch(token) {
+                    case "+" : ans=val1+val2; break;
+                    case "-" : ans=val1-val2; break;
+                    case "*" : ans=val1*val2; break;
+                    case "/" : ans=val1/val2; break;
+                }
+                Node temp=new Node(ans);
+                temp.prev=top;
+                top=temp;
+            } else {
+                Integer val=Integer.valueOf(token);
+                Node temp=new Node(val);
+                temp.prev=top;
+                top=temp;
+            }
+        }
+        return top.val;
+    }
+}
+
+class Node {
+    int val;
+    Node prev;
+    Node(int val) {
+        this.val=val;
+    }
+}
+```
+37. https://leetcode.com/problems/implement-stack-using-queues/description/
+> Implement a last-in-first-out (LIFO) stack using only two queues. The implemented stack should support all the functions of a normal stack (push, top, pop, and empty).
+Implement the MyStack class:
+void push(int x) Pushes element x to the top of the stack.
+int pop() Removes the element on the top of the stack and returns it.
+int top() Returns the element on the top of the stack.
+boolean empty() Returns true if the stack is empty, false otherwise.
+Notes:
+You must use only standard operations of a queue, which means that only push to back, peek/pop from front, size and is empty operations are valid.
+Depending on your language, the queue may not be supported natively. You may simulate a queue using a list or deque (double-ended queue) as long as you use only a queue's standard operations.
+```
+Input
+["MyStack", "push", "push", "top", "pop", "empty"]
+[[], [1], [2], [], [], []]
+Output
+[null, null, null, 2, 2, false]
+
+Explanation
+MyStack myStack = new MyStack();
+myStack.push(1);
+myStack.push(2);
+myStack.top(); // return 2
+myStack.pop(); // return 2
+myStack.empty(); // return False
+```
+```java []
+class MyStack {
+
+    Queue<Integer> q;
+
+    public MyStack() {
+        q=new LinkedList();
+    }
+    
+    public void push(int x) {
+        q.add(x);
+    }
+    
+    public int pop() {
+        int n=q.size();
+        for(int i=0; i<n-1; i++) {
+            q.add(q.poll());
+        }
+        return q.poll();
+    }
+    
+    public int top() {
+        int n=q.size();
+        for(int i=0; i<n-1; i++) {
+            q.add(q.poll());
+        }
+        int ans=q.peek();
+        q.add(q.poll());
+        return ans;
+    }
+    
+    public boolean empty() {
+        return q.isEmpty();
+    }
+}
+
+/**
+ * Your MyStack object will be instantiated and called as such:
+ * MyStack obj = new MyStack();
+ * obj.push(x);
+ * int param_2 = obj.pop();
+ * int param_3 = obj.top();
+ * boolean param_4 = obj.empty();
+ */
+```
+38. https://leetcode.com/problems/time-needed-to-buy-tickets/description/
+> There are n people in a line queuing to buy tickets, where the 0th person is at the front of the line and the (n - 1)th person is at the back of the line.
+You are given a 0-indexed integer array tickets of length n where the number of tickets that the ith person would like to buy is tickets[i].
+Each person takes exactly 1 second to buy a ticket. A person can only buy 1 ticket at a time and has to go back to the end of the line (which happens instantaneously) in order to buy more tickets. If a person does not have any tickets left to buy, the person will leave the line.
+Return the time taken for the person initially at position k (0-indexed) to finish buying tickets.
+```
+Input: tickets = [2,3,2], k = 2
+
+Output: 6
+
+Explanation:
+
+The queue starts as [2,3,2], where the kth person is underlined.
+After the person at the front has bought a ticket, the queue becomes [3,2,1] at 1 second.
+Continuing this process, the queue becomes [2,1,2] at 2 seconds.
+Continuing this process, the queue becomes [1,2,1] at 3 seconds.
+Continuing this process, the queue becomes [2,1] at 4 seconds. Note: the person at the front left the queue.
+Continuing this process, the queue becomes [1,1] at 5 seconds.
+Continuing this process, the queue becomes [1] at 6 seconds. The kth person has bought all their tickets, so return 6.
+```
+```java []
+class Solution {
+    public int timeRequiredToBuy(int[] tickets, int k) {
+        int n=tickets.length, ans=0, threshold=tickets[k];
+        for(int i=0; i<n; i++) {
+            if(i>k) ans+=Math.min(tickets[i], threshold-1);
+            else ans+=Math.min(tickets[i], threshold);
+        }
+        return ans;
+    }
+}
+```
+39. https://www.geeksforgeeks.org/problems/reverse-first-k-elements-of-queue/1
+> Given an integer k and a queue of integers, we need to reverse the order of the first k elements of the queue, leaving the other elements in the same relative order.
+Only following standard operations are allowed on queue.
+enqueue(x) : Add an item x to rear of queue
+dequeue() : Remove an item from front of queue
+size() : Returns number of elements in queue.
+front() : Finds front item.
+Note: The above operations represent the general processings. In-built functions of the respective languages can be used to solve the problem.
+```
+Input: q = [1, 2, 3, 4, 5], k = 3
+Output: [3, 2, 1, 4, 5]
+Explanation: After reversing the first 3 elements from the given queue the resultant queue will be 3 2 1 4 5
+```
+```java []
+class Solution {
+    public Queue<Integer> reverseFirstK(Queue<Integer> q, int k) {
+        if(k>q.size()) return q;
+        Stack<Integer> st=new Stack();
+        Queue<Integer> ans=new LinkedList();
+        int co=0;
+        for(;co<k;co++) st.push(q.poll());
+        while(!st.empty()) ans.add(st.pop());
+        while(!q.isEmpty()) ans.add(q.poll());
+        return ans;
+    }
+}
+```
+40. https://leetcode.com/problems/average-of-levels-in-binary-tree/description/
+> Given the root of a binary tree, return the average value of the nodes on each level in the form of an array. Answers within 10-5 of the actual answer will be accepted.
+```
+Input: root = [3,9,20,null,null,15,7]
+Output: [3.00000,14.50000,11.00000]
+Explanation: The average value of nodes on level 0 is 3, on level 1 is 14.5, and on level 2 is 11.
+Hence return [3, 14.5, 11].
+```
+```java []
+/**
+ * Definition for a binary tree node.
+ * public class TreeNode {
+ *     int val;
+ *     TreeNode left;
+ *     TreeNode right;
+ *     TreeNode() {}
+ *     TreeNode(int val) { this.val = val; }
+ *     TreeNode(int val, TreeNode left, TreeNode right) {
+ *         this.val = val;
+ *         this.left = left;
+ *         this.right = right;
+ *     }
+ * }
+ */
+class Solution {
+    public List<Double> averageOfLevels(TreeNode root) {
+        Queue<TreeNode> q=new LinkedList();
+        q.add(root);
+        List<Double> ans=new ArrayList();
+        int co=1;
+        while(!q.isEmpty()) {
+            int tempCo=0, dupCo=co;
+            Double sum=0.0;
+            for(;co!=0;co--) {
+                TreeNode curr=q.poll();
+                sum+=curr.val;
+                if(curr.left!=null) {
+                    q.add(curr.left);
+                    tempCo++;
+                }
+                if(curr.right!=null) {
+                    q.add(curr.right);
+                    tempCo++;
+                }
+            }
+            ans.add(sum/dupCo);
+            co=tempCo;
+        }
+        return ans;
+    }
+}
+```
+41. https://leetcode.com/problems/minimum-depth-of-binary-tree/description/
+> Given a binary tree, find its minimum depth.
+The minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.
+Note: A leaf is a node with no children.
+```
+Input: root = [3,9,20,null,null,15,7]
+Output: 2
+```
+```java []
+class Solution {
+    public int minDepth(TreeNode root) {
+        if(root==null) return 0;
+        Queue<TreeNode> q=new LinkedList();
+        q.add(root);
+        int co=1, depth=1;
+        while(!q.isEmpty()) {
+            int tempCo=0;
+            for(; co!=0; co--) {
+                TreeNode curr=q.poll();
+                if(curr.left==null && curr.right==null) {
+                    return depth;
+                }
+                if(curr.left!=null) {
+                    q.add(curr.left);
+                    tempCo++;
+                }
+                if(curr.right!=null) {
+                    q.add(curr.right);
+                    tempCo++;
+                }
+            }
+            depth++;
+            co=tempCo;
+        }   
+        return 0;
+    }
+}
+```
