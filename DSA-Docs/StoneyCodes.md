@@ -1448,3 +1448,358 @@ class Solution {
     }
 }
 ```
+43. https://leetcode.com/problems/binary-tree-level-order-traversal/description/
+> Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).
+```
+Input: root = [3,9,20,null,null,15,7]
+Output: [[3],[9,20],[15,7]]
+```
+```java []
+class Solution {
+    public List<List<Integer>> levelOrder(TreeNode root) {
+        if(root==null) return new ArrayList();
+        Queue<TreeNode> q=new LinkedList();
+        List<List<Integer>> ans=new ArrayList();
+        q.add(root);
+        int co=1;
+        while(!q.isEmpty()) {
+            int tempCo=0;
+            List<Integer> temp=new ArrayList();
+            for(; co!=0; co--) {
+                TreeNode curr=q.poll();
+                temp.add(curr.val);
+                if(curr.left!=null) {
+                    q.add(curr.left);
+                    tempCo++;
+                }
+                if(curr.right!=null) {
+                    q.add(curr.right);
+                    tempCo++;
+                }
+            }
+            ans.add(temp);
+            co=tempCo;
+        }
+        return ans;
+    }
+}
+```
+44. https://leetcode.com/problems/same-tree/description/
+> Given the roots of two binary trees p and q, write a function to check if they are the same or not.
+Two binary trees are considered the same if they are structurally identical, and the nodes have the same value.
+```
+Input: p = [1,2,3], q = [1,2,3]
+Output: true
+```
+```java []
+class Solution {
+    public boolean isSameTree(TreeNode p, TreeNode q) {
+        if(p==null && q==null) return true;
+        if(p==null) return false;
+        if(q==null) return false;
+
+        if(p.val!=q.val) return false;
+        return isSameTree(p.left, q.left) && isSameTree(p.right, q.right);
+    }
+}
+```
+45. https://leetcode.com/problems/path-sum/description/
+> Given the root of a binary tree and an integer targetSum, return true if the tree has a root-to-leaf path such that adding up all the values along the path equals targetSum.
+A leaf is a node with no children.
+```
+Input: root = [5,4,8,11,null,13,4,7,2,null,null,null,1], targetSum = 22
+Output: true
+Explanation: The root-to-leaf path with the target sum is shown.
+```
+```java []
+class Solution {
+
+    public boolean hasPathSum(TreeNode root, int targetSum) {
+        if(root==null) return false;
+        if(root.left==null && root.right==null && targetSum-root.val==0) return true;
+
+        return hasPathSum(root.left, targetSum-root.val) || hasPathSum(root.right, targetSum-root.val);
+    }
+}
+```
+46. https://leetcode.com/problems/diameter-of-binary-tree/description/
+> Given the root of a binary tree, return the length of the diameter of the tree.
+The diameter of a binary tree is the length of the longest path between any two nodes in a tree. This path may or may not pass through the root.
+The length of a path between two nodes is represented by the number of edges between them.
+```
+Input: root = [1,2,3,4,5]
+Output: 3
+Explanation: 3 is the length of the path [4,2,1,3] or [5,2,1,3].
+```
+```java []
+class Solution {
+    int diameter=0;
+    public int maxLevel(TreeNode root) {
+        if(root==null) return 0;
+        int left=maxLevel(root.left);
+        int right=maxLevel(root.right);
+        diameter=Math.max(diameter, left+right);
+
+        return Math.max(left, right)+1;
+    }
+
+    public int diameterOfBinaryTree(TreeNode root) {
+        maxLevel(root);
+        return diameter;
+    }
+}
+```
+47. https://leetcode.com/problems/invert-binary-tree/description/
+> Given the root of a binary tree, invert the tree, and return its root.
+```
+Input: root = [4,2,7,1,3,6,9]
+Output: [4,7,2,9,6,3,1]
+```
+```java []
+class Solution {
+    public TreeNode invertTree(TreeNode root) {
+        if(root==null) return null;
+        TreeNode temp=invertTree(root.left);
+        root.left=invertTree(root.right);
+        root.right=temp;
+        return root;
+    }
+}
+```
+48. https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-tree/description/
+> Given a binary tree, find the lowest common ancestor (LCA) of two given nodes in the tree.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+```
+Input: root = [3,5,1,6,2,0,8,null,null,7,4], p = 5, q = 1
+Output: 3
+Explanation: The LCA of nodes 5 and 1 is 3.
+```
+```java []
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if(root==null) return null;
+        if(root.val==p.val || root.val==q.val) return root;
+
+        TreeNode left = lowestCommonAncestor(root.left, p, q);
+        TreeNode right = lowestCommonAncestor(root.right, p, q);
+        if(left==null) return right;
+        if(right==null) return left;
+        if((left.val==p.val && right.val==q.val) || (left.val==q.val && right.val==p.val)) return root;
+        return null;
+    }
+}
+```
+49. https://leetcode.com/problems/search-in-a-binary-search-tree/description/
+> You are given the root of a binary search tree (BST) and an integer val.
+Find the node in the BST that the node's value equals val and return the subtree rooted with that node. If such a node does not exist, return null.
+```
+Input: root = [4,2,7,1,3], val = 2
+Output: [2,1,3]
+```
+```java []
+class Solution {
+    public TreeNode searchBST(TreeNode root, int val) {
+        if(root==null) return null;
+        if(root.val==val) return root;
+        if(val<root.val) return searchBST(root.left, val);
+        else return searchBST(root.right, val);
+    }
+}
+```
+50. https://leetcode.com/problems/insert-into-a-binary-search-tree/description/
+> You are given the root node of a binary search tree (BST) and a value to insert into the tree. Return the root node of the BST after the insertion. It is guaranteed that the new value does not exist in the original BST.
+Notice that there may exist multiple valid ways for the insertion, as long as the tree remains a BST after insertion. You can return any of them.
+```
+Input: root = [4,2,7,1,3], val = 5
+Output: [4,2,7,1,3,5]
+```
+```java []
+class Solution {
+    public TreeNode insertIntoBST(TreeNode root, int val) {
+        if(root==null) return new TreeNode(val);
+        if(root.val<val) root.right=insertIntoBST(root.right, val);
+        else root.left=insertIntoBST(root.left, val);
+        return root;
+    }
+}
+```
+51. https://leetcode.com/problems/convert-sorted-array-to-binary-search-tree/description/
+> Given an integer array nums where the elements are sorted in ascending order, convert it to a height-balanced binary search tree.
+```
+Input: nums = [-10,-3,0,5,9]
+Output: [0,-3,9,-10,null,5]
+```
+```java []
+class Solution {
+    public TreeNode insertBST(int st, int end, int[] nums) {
+        if(st>end) return null;
+        int mid=st+(end-st)/2;
+        TreeNode node=new TreeNode(nums[mid]);
+        node.left=insertBST(st, mid-1, nums);
+        node.right=insertBST(mid+1, end, nums);
+        return node;
+    }
+    public TreeNode sortedArrayToBST(int[] nums) {
+        int n=nums.length;
+        return insertBST(0, n-1, nums);
+    }
+}
+```
+52. https://leetcode.com/problems/two-sum-iv-input-is-a-bst/description/
+> Given the root of a binary search tree and an integer k, return true if there exist two elements in the BST such that their sum is equal to k, or false otherwise.
+```
+Input: root = [5,3,6,2,4,null,7], k = 9
+Output: true
+```
+```java []
+class Solution {
+    public boolean search(TreeNode root, int val, TreeNode curr) {
+        if(root==null) return false;
+        if(root!=curr && root.val==val) return true;
+        if(val<root.val) return search(root.left, val, curr);
+        else return search(root.right, val, curr);
+    }
+    
+    public boolean findSum(TreeNode root, TreeNode curr, int k) {
+        if(curr==null) return false;
+        int diff=k-curr.val;
+        if(search(root, diff, curr)) return true;
+        return findSum(root, curr.left, k)||findSum(root, curr.right, k);
+    }
+    
+    public boolean findTarget(TreeNode root, int k) {
+        return findSum(root, root, k);
+    }
+}
+```
+53. https://leetcode.com/problems/lowest-common-ancestor-of-a-binary-search-tree/description/
+> Given a binary search tree (BST), find the lowest common ancestor (LCA) node of two given nodes in the BST.
+According to the definition of LCA on Wikipedia: “The lowest common ancestor is defined between two nodes p and q as the lowest node in T that has both p and q as descendants (where we allow a node to be a descendant of itself).”
+```
+Input: root = [6,2,8,0,4,7,9,null,null,3,5], p = 2, q = 8
+Output: 6
+Explanation: The LCA of nodes 2 and 8 is 6.
+```
+```java []
+class Solution {
+    public TreeNode lowestCommonAncestor(TreeNode root, TreeNode p, TreeNode q) {
+        if(root==null) return null;
+        if(root.val>p.val && root.val>q.val) return lowestCommonAncestor(root.left, p, q);
+        if(root.val<p.val && root.val<q.val) return lowestCommonAncestor(root.right, p, q);
+        return root;
+    }
+}
+```
+54. https://leetcode.com/problems/minimum-absolute-difference-in-bst/description/
+> Given the root of a Binary Search Tree (BST), return the minimum absolute difference between the values of any two different nodes in the tree.
+```
+Input: root = [4,2,6,1,3]
+Output: 1
+```
+```java []
+class Solution {
+
+    int prev=-1, ans=Integer.MAX_VALUE;
+
+    public int getMinimumDifference(TreeNode root) {
+        if(root==null) return 0;
+        getMinimumDifference(root.left);
+        if(prev!=-1) ans=Math.min(ans, root.val-prev);
+        prev=root.val;
+        getMinimumDifference(root.right);
+        return ans;
+    }
+}
+```
+55. https://leetcode.com/problems/balance-a-binary-search-tree/description/
+> Given the root of a binary search tree, return a balanced binary search tree with the same node values. If there is more than one answer, return any of them.
+A binary search tree is balanced if the depth of the two subtrees of every node never differs by more than 1.
+```
+Input: root = [1,null,2,null,3,null,4,null,null]
+Output: [2,1,3,null,null,null,4]
+Explanation: This is not the only correct answer, [3,1,4,null,2] is also correct.
+```
+```java []
+class Solution {
+
+    List<Integer> sortedArr=new ArrayList();
+
+    public TreeNode convertSortedArrToBST(int st, int end) {
+        if(st>end) return null;
+        int mid=st+(end-st)/2;
+        TreeNode node=new TreeNode(sortedArr.get(mid));
+        node.left=convertSortedArrToBST(st, mid-1);
+        node.right=convertSortedArrToBST(mid+1, end);
+        return node;
+    }
+
+    public void traverseTree(TreeNode root) {
+        if(root==null) return ;
+
+        traverseTree(root.left);
+        sortedArr.add(root.val);
+        traverseTree(root.right);
+    }
+
+    public TreeNode balanceBST(TreeNode root) {
+        traverseTree(root);
+        return convertSortedArrToBST(0, sortedArr.size()-1);
+    }
+}
+```
+56. https://leetcode.com/problems/delete-node-in-a-bst/description/
+> Given a root node reference of a BST and a key, delete the node with the given key in the BST. Return the root node reference (possibly updated) of the BST.
+Basically, the deletion can be divided into two stages:
+Search for a node to remove.
+If the node is found, delete the node.
+```
+Input: root = [5,3,6,2,4,null,7], key = 3
+Output: [5,4,6,2,null,null,7]
+Explanation: Given key to delete is 3. So we find the node with value 3 and delete it.
+One valid answer is [5,4,6,2,null,null,7], shown in the above BST.
+Please notice that another valid answer is [5,2,6,null,4,null,7] and it's also accepted.
+```
+```java []
+class Solution {
+    public TreeNode deleteNode(TreeNode root, int key) {
+        if(root==null) return root;
+        if(root.val==key) {
+            if(root.left==null) return root.right;
+            if(root.right==null) return root.left;
+            TreeNode temp=root;
+            for(temp=temp.right ;temp.left!=null; temp=temp.left);
+            root.val=temp.val;
+            root.right=deleteNode(root.right, root.val);
+            return root;
+        }
+        if(root.val>key) {
+            root.left=deleteNode(root.left, key);
+        }
+        else{
+            root.right=deleteNode(root.right, key);
+        }
+        return root;
+    }
+}
+```
+57. https://leetcode.com/problems/kth-smallest-element-in-a-bst/description/
+> Given the root of a binary search tree, and an integer k, return the kth smallest value (1-indexed) of all the values of the nodes in the tree.
+```
+Input: root = [3,1,4,null,2], k = 1
+Output: 1
+```
+```java []
+class Solution {
+    int count=0;
+    public int kthSmallest(TreeNode root, int k) {
+        if(root==null) return -1;
+        int leftTree = kthSmallest(root.left, k);
+        if(leftTree!=-1) return leftTree;
+        count++;
+        if(count==k) return root.val;
+        int rightTree = kthSmallest(root.right, k);
+        return rightTree!=-1?rightTree:-1;
+    }
+}
+```
+58. 
