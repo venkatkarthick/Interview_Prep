@@ -1802,4 +1802,306 @@ class Solution {
     }
 }
 ```
-58. 
+58. https://leetcode.com/problems/kth-largest-element-in-an-array/description/
+> Given an integer array nums and an integer k, return the kth largest element in the array.
+Note that it is the kth largest element in the sorted order, not the kth distinct element.
+Can you solve it without sorting?
+```
+Input: nums = [3,2,1,5,6,4], k = 2
+Output: 5
+```
+```java []
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        Queue<Integer> maxHeap=new PriorityQueue(Comparator.reverseOrder());
+        int n=nums.length, top=0;
+        for(int i=0; i<n; i++) {
+            maxHeap.offer(nums[i]);
+        }
+        for(int i=0; i<k; i++) {
+            top=maxHeap.poll();
+        }
+        return top;
+    }
+}
+```
+59. https://leetcode.com/problems/k-closest-points-to-origin/description/
+> Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane and an integer k, return the k closest points to the origin (0, 0).
+The distance between two points on the X-Y plane is the Euclidean distance (i.e., √(x1 - x2)2 + (y1 - y2)2).
+You may return the answer in any order. The answer is guaranteed to be unique (except for the order that it is in).
+```
+Input: points = [[1,3],[-2,2]], k = 1
+Output: [[-2,2]]
+Explanation:
+The distance between (1, 3) and the origin is sqrt(10).
+The distance between (-2, 2) and the origin is sqrt(8).
+Since sqrt(8) < sqrt(10), (-2, 2) is closer to the origin.
+We only want the closest k = 1 points from the origin, so the answer is just [[-2,2]].
+```
+```java []
+class Solution {
+
+    public class Point implements Comparable<Point>{
+        int sqrtVal;
+        int[] point;
+        Point(int x, int y) {
+            point=new int[]{x, y};
+            sqrtVal=x*x+y*y;
+        }
+        public int compareTo(Point obj) {
+            return this.sqrtVal-obj.sqrtVal;
+        }
+    }
+
+    //Comparator<Point> pointComparator=(a, b) -> a.sqrtVal.compareTo(b.sqrtVal);
+
+    public int[][] kClosest(int[][] points, int k) {
+        int n=points.length;
+        int ans[][]=new int[k][2];
+        Queue<Point> minHeap=new PriorityQueue();
+        for(int i=0; i<n; i++) {
+            minHeap.offer(new Point(points[i][0], points[i][1]));
+        }
+        for(int i=0; i<k; i++) {
+            ans[i]=minHeap.poll().point;
+        }
+        return ans;
+    }
+}
+```
+60. https://leetcode.com/problems/top-k-frequent-elements/description/
+> Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.
+```
+Input: nums = [1,1,1,2,2,3], k = 2
+Output: [1,2]
+```
+```java []
+class Solution {
+
+    public class FreqMapper implements Comparable<FreqMapper>{
+        int num;
+        int freqVal;
+        FreqMapper(int num, int freqVal) {
+            this.num=num;
+            this.freqVal=freqVal;
+        }
+        @Override
+        public int compareTo(FreqMapper obj) {
+            return obj.freqVal-this.freqVal;
+        }
+    }
+
+    public int[] topKFrequent(int[] nums, int k) {
+        int n=nums.length;
+        int[] ans=new int[k];
+        //Calculate Frequency
+        Map<Integer, Integer> freq=new HashMap();
+        for(int i=0; i<n; i++) {
+            if(freq.containsKey(nums[i])) {
+                freq.put(nums[i], freq.get(nums[i])+1);
+            } else {
+                freq.put(nums[i], 1);
+            }
+        }
+
+        //Insert in Heap
+        Queue<FreqMapper> maxHeap=new PriorityQueue();
+        for(Integer num:freq.keySet()) {
+            maxHeap.offer(new FreqMapper(num, freq.get(num)));
+        }
+        for(int i=0; i<k; i++) {
+            ans[i]=maxHeap.poll().num;
+        }
+        return ans;
+    }
+}
+```
+61. https://leetcode.com/problems/task-scheduler/description/
+> You are given an array of CPU tasks, each labeled with a letter from A to Z, and a number n. Each CPU interval can be idle or allow the completion of one task. Tasks can be completed in any order, but there's a constraint: there has to be a gap of at least n intervals between two tasks with the same label.
+Return the minimum number of CPU intervals required to complete all tasks.
+```
+Input: tasks = ["A","A","A","B","B","B"], n = 2
+Output: 8
+Explanation: A possible sequence is: A -> B -> idle -> A -> B -> idle -> A -> B.
+After completing task A, you must wait two intervals before doing A again. The same applies to task B. In the 3rd interval, neither A nor B can be done, so you idle. By the 4th interval, you can do A again as 2 intervals have passed.
+```
+```java []
+class Solution {
+    public int leastInterval(char[] tasks, int n) {
+        int[] freq=new int[26];
+        for(char task : tasks) {
+            freq[task-'A']++;
+        }
+        Arrays.sort(freq);
+        int maxFreq=freq[25], maxFreqCount=0;
+        for(int i=25; i>=0; i--) {
+            if(freq[i]==maxFreq) maxFreqCount++;
+            else break;
+        }
+        int partitionCount=maxFreq-1;
+        int partitionLength=n-(maxFreqCount-1);
+        int emptySlots=partitionCount*partitionLength;
+        int takenSlots=tasks.length-maxFreq*maxFreqCount;
+        int idleSlots=Math.max(0, emptySlots-takenSlots);
+        return tasks.length+idleSlots;
+    }
+}
+```
+62. https://leetcode.com/problems/clone-graph/description/
+> Given a reference of a node in a connected undirected graph.
+Return a deep copy (clone) of the graph.
+Each node in the graph contains a value (int) and a list (List[Node]) of its neighbors.
+```java []
+/*
+// Definition for a Node.
+class Node {
+    public int val;
+    public List<Node> neighbors;
+    public Node() {
+        val = 0;
+        neighbors = new ArrayList<Node>();
+    }
+    public Node(int _val) {
+        val = _val;
+        neighbors = new ArrayList<Node>();
+    }
+    public Node(int _val, ArrayList<Node> _neighbors) {
+        val = _val;
+        neighbors = _neighbors;
+    }
+}
+*/
+
+class Solution {
+
+    Map<Integer, Node> nodeMap=new HashMap();
+
+    public Node cloneGraph(Node node) {
+        if(node==null) return null;
+        if(nodeMap.containsKey(node.val)) return nodeMap.get(node.val);
+        Node root=new Node(node.val);
+        nodeMap.put(node.val, root);
+        for(Node neighbor: node.neighbors) {
+            root.neighbors.add(cloneGraph(neighbor));
+        }
+        return root;
+    }
+}
+```
+63. https://leetcode.com/problems/cheapest-flights-within-k-stops/description/
+> There are n cities connected by some number of flights. You are given an array flights where flights[i] = [fromi, toi, pricei] indicates that there is a flight from city fromi to city toi with cost pricei.
+You are also given three integers src, dst, and k, return the cheapest price from src to dst with at most k stops. If there is no such route, return -1.
+```
+Input: n = 4, flights = [[0,1,100],[1,2,100],[2,0,100],[1,3,600],[2,3,200]], src = 0, dst = 3, k = 1
+Output: 700
+Explanation:
+The graph is shown above.
+The optimal path with at most 1 stop from city 0 to 3 is marked in red and has cost 100 + 600 = 700.
+Note that the path through cities [0,1,2,3] is cheaper but is invalid because it uses 2 stops.
+```
+```java []
+class Solution {
+
+    List<Link>[] edgeMap;
+    int dest;
+    int[][] memo;
+    class Link {
+        public int val;
+        public int cost;
+        Link(int val, int cost) {
+            this.val=val;
+            this.cost=cost;
+        }
+    }
+
+    public int findCheapDFS(int src, int k) {
+        if(memo[src][k]!=-2) return memo[src][k];
+        if(src==dest) return 0;
+        if(k==0) return -1;
+        if(edgeMap[src]==null) return -1;
+        int tempCost=Integer.MAX_VALUE;
+        for(Link edge : edgeMap[src]) {
+            int cost=findCheapDFS(edge.val, k-1);
+            if(cost!=-1) {
+                tempCost=Math.min(tempCost, cost+edge.cost);
+            }
+        }
+        if(tempCost==-1 || tempCost==Integer.MAX_VALUE) return memo[src][k]=-1;
+        return memo[src][k]=tempCost;
+    }
+
+    public int findCheapestPrice(int n, int[][] flights, int src, int dst, int k) {
+        memo=new int[n][k+2];
+        for(int[] m:memo) {
+            Arrays.fill(m, -2);
+        }
+        edgeMap=new List[n];
+        dest=dst;
+        for(int[] flight: flights) {
+            if(edgeMap[flight[0]]==null) {
+                edgeMap[flight[0]]=new ArrayList();
+            }
+            edgeMap[flight[0]].add(new Link(flight[1], flight[2]));
+        }
+        return findCheapDFS(src, k+1);    
+    }
+}
+```
+65. https://leetcode.com/problems/course-schedule/description/
+> There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai.
+For example, the pair [0, 1], indicates that to take course 0 you have to first take course 1.
+Return true if you can finish all courses. Otherwise, return false.
+```
+Input: numCourses = 2, prerequisites = [[1,0]]
+Output: true
+Explanation: There are a total of 2 courses to take. 
+To take course 1 you should have finished course 0. So it is possible.
+```
+```java []
+class Solution {
+
+    int[] memo;
+    boolean[] vis;
+
+    public boolean hasCylce(int node, List<Integer>[] graph) {
+        if(memo[node]!=0) return memo[node]==2?true:false;
+        if(graph[node]==null) {
+            memo[node]=1;
+            return false;
+        }
+        for(int neighbour : graph[node]) {
+            if(vis[neighbour]) {
+                memo[node]=2;
+                return true;
+            }
+            vis[neighbour]=true;
+            if(hasCylce(neighbour, graph)) {
+                memo[node]=2;
+                return true;
+            } 
+            vis[neighbour]=false;
+        }
+        memo[node]=1;
+        return false;
+    }
+
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        memo=new int[numCourses];
+        vis=new boolean[numCourses];
+        List<Integer>[] graph=new ArrayList[numCourses];
+        for(int[] preReq : prerequisites) {
+            if(graph[preReq[1]]==null) {
+                graph[preReq[1]]=new ArrayList<>(Arrays.asList(preReq[0]));
+            } else {
+                graph[preReq[1]].add(preReq[0]);
+            }
+        }
+        for(int i=0; i<numCourses; i++) {
+            vis[i]=true;
+            if(hasCylce(i, graph)) return false;
+            vis[i]=false;
+        }
+        return true;
+    }
+}
+```
