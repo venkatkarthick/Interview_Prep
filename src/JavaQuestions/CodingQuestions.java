@@ -1,6 +1,8 @@
 package JavaQuestions;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 public class CodingQuestions {
 
@@ -183,9 +185,38 @@ public class CodingQuestions {
         }
     }
 
+    public static void q27() {
+        List<String> list=new ArrayList<>();
+        list.add("A");
+        list.add("B");
+        list.add("C");
+        list.remove("B");
+        list.remove(1);
+        System.out.println(list);
+    }
+
+    public static void q28() {
+        List<Integer> list=new ArrayList<>(Arrays.asList(1,2,3));
+        list.remove(2);
+        System.out.println(list);
+        //[1,2] -> here primitive integer is passed so remove from index method invoked
+        // We need to pass Integer object as Integer.valueOf(2) to invoke remove an element method
+    }
+
+    public static void q29() {
+        List<String> list=new ArrayList<>(Arrays.asList("A","B","C"));
+        for(String s : list) {
+            if(s.equals("A")) {
+                list.remove(s);
+            }
+        }
+        System.out.println(list);
+        //throws concurrent modification exception.
+        // Use structural modifications inside for loop
+    }
 
     public static void main(String[] args) {
-        q13();
+        q29();
     }
 
 }
