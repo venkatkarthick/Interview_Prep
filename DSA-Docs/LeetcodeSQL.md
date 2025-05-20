@@ -402,3 +402,114 @@ from Prices p left join UnitsSold u <br>
 on p.product_id=u.product_id and u.purchase_date between p.start_date and p.end_date <br>
 group by p.product_id;
 
+17. https://leetcode.com/problems/project-employees-i/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Project table:
++-------------+-------------+
+| project_id  | employee_id |
++-------------+-------------+
+| 1           | 1           |
+| 1           | 2           |
+| 1           | 3           |
+| 2           | 1           |
+| 2           | 4           |
++-------------+-------------+
+Employee table:
++-------------+--------+------------------+
+| employee_id | name   | experience_years |
++-------------+--------+------------------+
+| 1           | Khaled | 3                |
+| 2           | Ali    | 2                |
+| 3           | John   | 1                |
+| 4           | Doe    | 2                |
++-------------+--------+------------------+
+```
+> Write an SQL query that reports the average experience years of all the employees for each project, rounded to 2 digits.
+
+> select p.project_id, round(avg(e.experience_years),2) as average_years <br>
+from Project p join Employee e on p.employee_id=e.employee_id <br>
+group by p.project_id;
+
+18. https://leetcode.com/problems/percentage-of-users-attended-a-contest/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Users table:
++---------+-----------+
+| user_id | user_name |
++---------+-----------+
+| 6       | Alice     |
+| 2       | Bob       |
+| 7       | Alex      |
++---------+-----------+
+Register table:
++------------+---------+
+| contest_id | user_id |
++------------+---------+
+| 215        | 6       |
+| 209        | 2       |
+| 208        | 2       |
+| 210        | 6       |
+| 208        | 6       |
+| 209        | 7       |
+| 209        | 6       |
+| 215        | 7       |
+| 208        | 7       |
+| 210        | 2       |
+| 207        | 2       |
+| 210        | 7       |
++------------+---------+
+```
+> Write a solution to find the percentage of the users registered in each contest rounded to two decimals.<br>
+Return the result table ordered by percentage in descending order. In case of a tie, order it by contest_id in ascending order.
+
+> select contest_id, round(((count(user_id)*100)/(select count(*) from Users)),2) as percentage<br>
+from Register<br>
+group by contest_id<br>
+order by percentage desc, contest_id asc;
+
+19. https://leetcode.com/problems/queries-quality-and-percentage/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Queries table:
++------------+-------------------+----------+--------+
+| query_name | result            | position | rating |
++------------+-------------------+----------+--------+
+| Dog        | Golden Retriever  | 1        | 5      |
+| Dog        | German Shepherd   | 2        | 5      |
+| Dog        | Mule              | 200      | 1      |
+| Cat        | Shirazi           | 5        | 2      |
+| Cat        | Siamese           | 3        | 3      |
+| Cat        | Sphynx            | 7        | 4      |
++------------+-------------------+----------+--------+
+```
+> We define query quality as:<br>
+The average of the ratio between query rating and its position.<br>
+We also define poor query percentage as:<br>
+The percentage of all queries with rating less than 3.
+
+> select query_name, round(avg(rating/position),2) as quality, <br>
+round(avg(if(rating<3,1,0)*100),2) as poor_query_percentage <br>
+from Queries <br>
+group by query_name;
+
+20. https://leetcode.com/problems/monthly-transactions-i/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Transactions table:
++------+---------+----------+--------+------------+
+| id   | country | state    | amount | trans_date |
++------+---------+----------+--------+------------+
+| 121  | US      | approved | 1000   | 2018-12-18 |
+| 122  | US      | declined | 2000   | 2018-12-19 |
+| 123  | US      | approved | 2000   | 2019-01-01 |
+| 124  | DE      | approved | 2000   | 2019-01-07 |
++------+---------+----------+--------+------------+
+```
+> Write an SQL query to find for each month and country, the number of transactions and their total amount, the number of approved transactions and their total amount.
+
+> select **DATE_FORMAT(trans_date, '%Y-%m')** as month, country, <br>
+count(*) as trans_count,<br>
+sum(if(state='approved',1,0)) as approved_count,<br>
+sum(amount) as trans_total_amount,<br>
+sum(if(state='approved',amount,0)) as approved_total_amount<br>
+from Transactions<br>
+group by DATE_FORMAT(trans_date, '%Y-%m'), country;
+
+21. 

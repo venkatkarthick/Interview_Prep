@@ -215,8 +215,22 @@ public class CodingQuestions {
         // Use structural modifications inside for loop
     }
 
+    public static void q30() {
+        String s1="abc";
+        String s2=s1;
+        s1+="d";
+        System.out.println(s1==s2);
+        //false, Since strings are immutable a new String is formed in the string pool for s1 and thus both points to different address
+
+        StringBuffer s3=new StringBuffer("abc");
+        StringBuffer s4=s3;
+        s3.append("d");
+        System.out.println(s3==s4);
+        //true, String buffer is mutable and both objects are pointed to same reference
+    }
+
     public static void main(String[] args) {
-        q29();
+        q30();
     }
 
 }
