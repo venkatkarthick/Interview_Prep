@@ -512,4 +512,206 @@ sum(if(state='approved',amount,0)) as approved_total_amount<br>
 from Transactions<br>
 group by DATE_FORMAT(trans_date, '%Y-%m'), country;
 
-21. 
+21. https://leetcode.com/problems/immediate-food-delivery-ii/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Delivery table:
++-------------+-------------+------------+-----------------------------+
+| delivery_id | customer_id | order_date | customer_pref_delivery_date |
++-------------+-------------+------------+-----------------------------+
+| 1           | 1           | 2019-08-01 | 2019-08-02                  |
+| 2           | 2           | 2019-08-02 | 2019-08-02                  |
+| 3           | 1           | 2019-08-11 | 2019-08-12                  |
+| 4           | 3           | 2019-08-24 | 2019-08-24                  |
+| 5           | 3           | 2019-08-21 | 2019-08-22                  |
+| 6           | 2           | 2019-08-11 | 2019-08-13                  |
+| 7           | 4           | 2019-08-09 | 2019-08-09                  |
++-------------+-------------+------------+-----------------------------+
+```
+> If the customer's preferred delivery date is the same as the order date, then the order is called immediate; otherwise, it is called scheduled.<br><br>
+The first order of a customer is the order with the earliest order date that the customer made. It is guaranteed that a customer has precisely one first order. <br><br>
+Write a solution to find the percentage of immediate orders in the first orders of all customers, rounded to 2 decimal places.
+
+> select round(avg(if(order_date=customer_pref_delivery_date,1,0))*100,2) as immediate_percentage<br>
+from Delivery<br>
+where (customer_id, order_date) IN<br>
+(<br>
+&nbsp;&nbsp; select customer_id, min(order_date)  as earliest_date<br>
+&nbsp;&nbsp; from Delivery<br>
+&nbsp;&nbsp; group by customer_id<br>
+);
+
+22. https://leetcode.com/problems/game-play-analysis-iv/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Activity table:
++-----------+-----------+------------+--------------+
+| player_id | device_id | event_date | games_played |
++-----------+-----------+------------+--------------+
+| 1         | 2         | 2016-03-01 | 5            |
+| 1         | 2         | 2016-03-02 | 6            |
+| 2         | 3         | 2017-06-25 | 1            |
+| 3         | 1         | 2016-03-02 | 0            |
+| 3         | 4         | 2018-07-03 | 5            |
++-----------+-----------+------------+--------------+
+```
+> Write a solution to report the fraction of players that logged in again on the day after the day they first logged in, rounded to 2 decimal places. In other words, you need to count the number of players that logged in for at least two consecutive days starting from their first login date, then divide that number by the total number of players.
+
+> with first_day as ( <br>
+&nbsp;&nbsp; select player_id, min(event_date) as first_date <br>
+&nbsp;&nbsp; from Activity <br>
+&nbsp;&nbsp; group by player_id <br>
+), <br>
+consecutive_day as ( <br>
+&nbsp;&nbsp; select count(*) as immediate_player <br>
+&nbsp;&nbsp; from Activity next join first_day cur on next.player_id=cur.player_id <br>
+&nbsp;&nbsp; and next.event_date=cur.first_date+INTERVAL 1 day <br>
+) <br>
+select round(c.immediate_player/count(DISTINCT a.player_id),2) as fraction <br>
+from Activity a, consecutive_day c; 
+
+23. https://leetcode.com/problems/number-of-unique-subjects-taught-by-each-teacher/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Teacher table:
++------------+------------+---------+
+| teacher_id | subject_id | dept_id |
++------------+------------+---------+
+| 1          | 2          | 3       |
+| 1          | 2          | 4       |
+| 1          | 3          | 3       |
+| 2          | 1          | 1       |
+| 2          | 2          | 1       |
+| 2          | 3          | 1       |
+| 2          | 4          | 1       |
++------------+------------+---------+
+```
+> Write a solution to calculate the number of unique subjects each teacher teaches in the university.
+
+> select teacher_id, count(DISTINCT subject_id) as cnt <br>
+from Teacher <br>
+group by teacher_id;
+
+24. https://leetcode.com/problems/user-activity-for-the-past-30-days-i/?envType=study-plan-v2&envId=top-sql-50
+```
+Activity table:
++---------+------------+---------------+---------------+
+| user_id | session_id | activity_date | activity_type |
++---------+------------+---------------+---------------+
+| 1       | 1          | 2019-07-20    | open_session  |
+| 1       | 1          | 2019-07-20    | scroll_down   |
+| 1       | 1          | 2019-07-20    | end_session   |
+| 2       | 4          | 2019-07-20    | open_session  |
+| 2       | 4          | 2019-07-21    | send_message  |
+| 2       | 4          | 2019-07-21    | end_session   |
+| 3       | 2          | 2019-07-21    | open_session  |
+| 3       | 2          | 2019-07-21    | send_message  |
+| 3       | 2          | 2019-07-21    | end_session   |
+| 4       | 3          | 2019-06-25    | open_session  |
+| 4       | 3          | 2019-06-25    | end_session   |
++---------+------------+---------------+---------------+
+```
+> Write a solution to find the daily active user count for a period of 30 days ending 2019-07-27 inclusively. A user was active on someday if they made at least one activity on that day.
+
+> select activity_date as day, count(DISTINCT user_id) as active_users <br>
+from Activity <br>
+group by activity_date <br>
+having activity_date between '2019-07-28'-INTERVAL 30 day and '2019-07-27';
+
+25. https://leetcode.com/problems/product-sales-analysis-iii/?envType=study-plan-v2&envId=top-sql-50
+```
+Sales table:
++---------+------------+------+----------+-------+
+| sale_id | product_id | year | quantity | price |
++---------+------------+------+----------+-------+ 
+| 1       | 100        | 2008 | 10       | 5000  |
+| 2       | 100        | 2009 | 12       | 5000  |
+| 7       | 200        | 2011 | 15       | 9000  |
++---------+------------+------+----------+-------+
+Product table:
++------------+--------------+
+| product_id | product_name |
++------------+--------------+
+| 100        | Nokia        |
+| 200        | Apple        |
+| 300        | Samsung      |
++------------+--------------+
+```
+> Write a solution to select the product id, year, quantity, and price for the first year of every product sold. If any product is bought multiple times in its first year, return all sales separately.
+
+> select s.product_id, s.year as first_year, s.quantity, s.price <br>
+from Sales s join Product p on s.product_id=p.product_id <br>
+where (s.product_id, s.year) in <br>
+( <br>
+select product_id, min(year) as first_year <br>
+from Sales <br>
+group by product_id <br>
+) <br>
+//Join Product table as well for faster retrieval since less amount of rows<br> will be passed to the subquery
+
+26. https://leetcode.com/problems/classes-more-than-5-students/submissions/1639563753/?envType=study-plan-v2&envId=top-sql-50
+```
+Courses table:
++---------+----------+
+| student | class    |
++---------+----------+
+| A       | Math     |
+| B       | English  |
+| C       | Math     |
+| D       | Biology  |
+| E       | Math     |
+| F       | Computer |
+| G       | Math     |
+| H       | Math     |
+| I       | Math     |
++---------+----------+
+```
+> Write a solution to find all the classes that have at least five students.
+
+> select class<br>
+from Courses<br>
+group by class<br>
+having count(class)>=5;
+
+27. https://leetcode.com/problems/find-followers-count/?envType=study-plan-v2&envId=top-sql-50
+```
+Followers table:
++---------+-------------+
+| user_id | follower_id |
++---------+-------------+
+| 0       | 1           |
+| 1       | 0           |
+| 2       | 0           |
+| 2       | 1           |
++---------+-------------+
+```
+> Write a solution that will, for each user, return the number of followers.
+
+> select user_id, count(user_id) as followers_count<br>
+from Followers<br>
+group by user_id<br>
+order by user_id;
+
+28. https://leetcode.com/problems/biggest-single-number/?envType=study-plan-v2&envId=top-sql-50
+```
++-----+
+| num |
++-----+
+| 8   |
+| 8   |
+| 3   |
+| 3   |
+| 1   |
+| 4   |
+| 5   |
+| 6   |
++-----+
+```
+> A single number is a number that appeared only once in the MyNumbers table. <br>
+Find the largest single number. If there is no single number, report null.
+
+> with distinctNum as ( <br>
+&nbsp;&nbsp; select num<br>
+&nbsp;&nbsp; from MyNumbers <br>
+&nbsp;&nbsp; group by num <br>
+&nbsp;&nbsp; having count(num)=1 <br>
+) <br>
+select max(num) as num <br>
+from distinctNum;
