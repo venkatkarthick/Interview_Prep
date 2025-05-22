@@ -715,3 +715,60 @@ Find the largest single number. If there is no single number, report null.
 ) <br>
 select max(num) as num <br>
 from distinctNum;
+
+29. https://leetcode.com/problems/customers-who-bought-all-products/?envType=study-plan-v2&envId=top-sql-50
+```
+Customer table:
++-------------+-------------+
+| customer_id | product_key |
++-------------+-------------+
+| 1           | 5           |
+| 2           | 6           |
+| 3           | 5           |
+| 3           | 6           |
+| 1           | 6           |
++-------------+-------------+
+Product table:
++-------------+
+| product_key |
++-------------+
+| 5           |
+| 6           |
++-------------+
+```
+> Write a solution to report the customer ids from the Customer table that bought all the products in the Product table.
+
+> select c.customer_id <br>
+from Customer c <br>
+group by c.customer_id <br>
+having count(DISTINCT c.product_key) = <br>
+(select count(product_key) as total_product from Product);
+
+30. https://leetcode.com/problems/the-number-of-employees-which-report-to-each-employee/submissions/1640982242/?envType=study-plan-v2&envId=top-sql-50
+```
+Employees table:
++-------------+---------+------------+-----+ 
+| employee_id | name    | reports_to | age |
+|-------------|---------|------------|-----|
+| 1           | Michael | null       | 45  |
+| 2           | Alice   | 1          | 38  |
+| 3           | Bob     | 1          | 42  |
+| 4           | Charlie | 2          | 34  |
+| 5           | David   | 2          | 40  |
+| 6           | Eve     | 3          | 37  |
+| 7           | Frank   | null       | 50  |
+| 8           | Grace   | null       | 48  |
++-------------+---------+------------+-----+ 
+```
+> For this problem, we will consider a manager an employee who has at least 1 other employee reporting to them. <br><br>
+Write a solution to report the ids and the names of all managers, the number of employees who report directly to them, and the average age of the reports rounded to the nearest integer. <br><br>
+Return the result table ordered by employee_id.
+
+> select manager.employee_id, manager.name, <br>
+count(employee.employee_id) as reports_count, round(avg(employee.age),0) as average_age <br>
+from Employees employee join Employees manager <br>
+on employee.reports_to=manager.employee_id <br>
+group by manager.employee_id, manager.name <br>
+order by manager.employee_id; 
+
+31. 
