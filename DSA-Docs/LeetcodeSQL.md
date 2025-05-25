@@ -771,4 +771,625 @@ on employee.reports_to=manager.employee_id <br>
 group by manager.employee_id, manager.name <br>
 order by manager.employee_id; 
 
-31. 
+31. https://leetcode.com/problems/primary-department-for-each-employee/?envType=study-plan-v2&envId=top-sql-50
+```
+Employee table:
++-------------+---------------+--------------+
+| employee_id | department_id | primary_flag |
++-------------+---------------+--------------+
+| 1           | 1             | N            |
+| 2           | 1             | Y            |
+| 2           | 2             | N            |
+| 3           | 3             | N            |
+| 4           | 2             | N            |
+| 4           | 3             | Y            |
+| 4           | 4             | N            |
++-------------+---------------+--------------+
+```
+> Employees can belong to multiple departments. When the employee joins other departments, they need to decide which department is their primary department. Note that when an employee belongs to only one department, their primary column is 'N'. <br><br>
+Write a solution to report all the employees with their primary department. For employees who belong to one department, report their only department.
+
+> Alternative approach : Rank each row based on priority and get the first row. But too costly. <br><br>
+with rank_table as ( <br>
+&nbsp;&nbsp;select *, **row_number() over(** <br>
+&nbsp;&nbsp;**partition by** employee_id <br>
+&nbsp;&nbsp;**order by** _if(primary_flag="Y", 1, 2)_ <br>
+&nbsp;&nbsp;) as rn <br>
+&nbsp;&nbsp;from Employee <br>
+) <br>
+select employee_id, department_id <br>
+from rank_table <br>
+where rn=1;
+
+> Simply and less costly query: <br><br>
+select employee_id, department_id <br>
+from Employee<br>
+where primary_flag='Y' or employee_id in (<br>
+&nbsp;&nbsp;select employee_id<br>
+&nbsp;&nbsp;from Employee<br>
+&nbsp;&nbsp;group by employee_id<br>
+&nbsp;&nbsp;having count(employee_id)=1<br>
+);<br><br>
+> We can write 2 seperate queries for two or clauses and unite the results through **_union_**
+
+32. https://leetcode.com/problems/triangle-judgement/description/?envType=study-plan-v2&envId=top-sql-50
+
+```
+Triangle table:
++----+----+----+
+| x  | y  | z  |
++----+----+----+
+| 13 | 15 | 30 |
+| 10 | 20 | 15 |
++----+----+----+
+```
+> Report for every three line segments whether they can form a triangle.
+
+> select x, y, z, <br>
+if((x+y>z && x+z>y && y+z>x), "Yes", "No") as triangle <br>
+from Triangle;
+
+33. https://leetcode.com/problems/consecutive-numbers/?envType=study-plan-v2&envId=top-sql-50
+```
+Logs table:
++----+-----+
+| id | num |
++----+-----+
+| 1  | 1   |
+| 2  | 1   |
+| 3  | 1   |
+| 4  | 2   |
+| 5  | 1   |
+| 6  | 2   |
+| 7  | 2   |
++----+-----+
+```
+
+> Find all numbers that appear at least three times consecutively.
+
+> select DISTINCT one.num as ConsecutiveNums <br>
+from Logs one <br>
+join Logs two <br>
+join Logs three <br>
+where one.num=two.num and one.num=three.num <br>
+and one.id=two.id+1 and two.id=three.id+1;
+
+34. https://leetcode.com/problems/product-price-at-a-given-date/submissions/1642364701/?envType=study-plan-v2&envId=top-sql-50
+```
+Products table:
++------------+-----------+-------------+
+| product_id | new_price | change_date |
++------------+-----------+-------------+
+| 1          | 20        | 2019-08-14  |
+| 2          | 50        | 2019-08-14  |
+| 1          | 30        | 2019-08-15  |
+| 1          | 35        | 2019-08-16  |
+| 2          | 65        | 2019-08-17  |
+| 3          | 20        | 2019-08-18  |
++------------+-----------+-------------+
+```
+> Write a solution to find the prices of all products on 2019-08-16. Assume the price of all products before any change is 10.
+
+> with <br>
+rankedProducts as( <br>
+&nbsp;&nbsp;&nbsp;select product_id, new_price, change_date, row_number() over(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;partition by product_id<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order by change_date desc<br>
+&nbsp;&nbsp;&nbsp;) as rn<br>
+&nbsp;&nbsp;&nbsp;from Products<br>
+&nbsp;&nbsp;&nbsp;where change_date<='2019-08-16'<br>
+), filteredProducts as (<br>
+&nbsp;&nbsp;&nbsp;select p.product_id, rp.new_price, rp.change_date, row_number() over(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;partition by p.product_id<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;order by if(rp.rn=1, 1, if(rp.rn=null, 1, 2))<br>
+&nbsp;&nbsp;&nbsp;) as rnn<br>
+&nbsp;&nbsp;&nbsp;from Products p left join rankedProducts rp<br>
+&nbsp;&nbsp;&nbsp;on p.product_id=rp.product_id and p.change_date=rp.change_date<br>
+)<br>
+select product_id, if(new_price is null, 10, new_price) as price<br>
+from filteredProducts<br>
+where rnn=1;<br><br>
+
+> Rank the rows which has products within the given date. Filter the ranked table for null values in the existing products which might occur for _date>given date_ and also capture the non-ranked products and return the first row.
+
+35. https://leetcode.com/problems/product-price-at-a-given-date/?envType=study-plan-v2&envId=top-sql-50
+```
+Products table:
++------------+-----------+-------------+
+| product_id | new_price | change_date |
++------------+-----------+-------------+
+| 1          | 20        | 2019-08-14  |
+| 2          | 50        | 2019-08-14  |
+| 1          | 30        | 2019-08-15  |
+| 1          | 35        | 2019-08-16  |
+| 2          | 65        | 2019-08-17  |
+| 3          | 20        | 2019-08-18  |
++------------+-----------+-------------+
+```
+
+> Write a solution to find the prices of all products on 2019-08-16. Assume the price of all products before any change is 10.
+
+> with <br>
+rankedProducts as( <br>
+&nbsp;&nbsp;select product_id, new_price, change_date, row_number() over( <br>
+&nbsp;&nbsp;partition by product_id<br>
+&nbsp;&nbsp;order by change_date desc<br>
+&nbsp;&nbsp;) as rn<br>
+&nbsp;&nbsp;from Products<br>
+&nbsp;&nbsp;where change_date<='2019-08-16'<br>
+), filteredProducts as (<br>
+&nbsp;&nbsp;select p.product_id, rp.new_price, rp.change_date, row_number() over(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;partition by p.product_id<br>
+&nbsp;&nbsp;&nbsp;&nbsp;order by if(rp.rn=1, 1, if(rp.rn=null, 1, 2))<br>
+&nbsp;&nbsp;) as rnn<br>
+&nbsp;&nbsp;from Products p left join rankedProducts rp<br>
+&nbsp;&nbsp;on p.product_id=rp.product_id and p.change_date=rp.change_date<br>
+)<br>
+select product_id, if(new_price is null, 10, new_price) as price<br>
+from filteredProducts<br>
+where rnn=1;<br><br>
+//Select and rank the rows whose _change date<given date_ and then filter out the nulls present by giving priority to rn=1 and then rn=null such that we can effectively handle null cases we may get for the products having _change date > given date_ and also products which only has change date above the given date also can be properly identified by joining both rows with left join and selecting new_price from ranked row where it will be having null and thus properly giving it the default value of 10
+
+36. https://leetcode.com/problems/count-salary-categories/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Accounts table:
++------------+--------+
+| account_id | income |
++------------+--------+
+| 3          | 108939 |
+| 2          | 12747  |
+| 8          | 87709  |
+| 6          | 91796  |
++------------+--------+
+```
+> Write a solution to calculate the number of bank accounts for each salary category. The salary categories are:<br>
+"Low Salary": All the salaries strictly less than 20000.<br>
+"Average Salary": All the salaries in the inclusive range [20000, 50000].<br>
+"High Salary": All the salaries strictly greater than 50000.<br>
+The result table must contain all three categories. If there are no accounts in a category, return 0.
+
+> with <br>
+accountsCount as (<br>
+&nbsp;&nbsp;select account_id, income,<br>
+&nbsp;&nbsp;if(income<20000, "Low Salary",<br>
+&nbsp;&nbsp;if(income>50000, "High Salary", "Average Salary")) as category<br>
+&nbsp;&nbsp;from Accounts<br>
+), accountTypes as (<br>
+&nbsp;&nbsp;select "Low Salary" as name union all<br>
+&nbsp;&nbsp;select "Average Salary" union all<br>
+&nbsp;&nbsp;select "High Salary"<br>
+)<br>
+select at.name as category, count(ac.category) as accounts_count<br>
+from accountTypes at left join accountsCount ac<br>
+on ac.category=at.name<br>
+group by ac.category;
+
+36. https://leetcode.com/problems/employees-whose-manager-left-the-company/?envType=study-plan-v2&envId=top-sql-50
+```
+Employees table:
++-------------+-----------+------------+--------+
+| employee_id | name      | manager_id | salary |
++-------------+-----------+------------+--------+
+| 3           | Mila      | 9          | 60301  |
+| 12          | Antonella | null       | 31000  |
+| 13          | Emery     | null       | 67084  |
+| 1           | Kalel     | 11         | 21241  |
+| 9           | Mikaela   | null       | 50937  |
+| 11          | Joziah    | 6          | 28485  |
++-------------+-----------+------------+--------+
+```
+> Find the IDs of the employees whose salary is strictly less than 30000 and whose manager left the company. When a manager leaves the company, their information is deleted from the Employees table, but the reports still have their manager_id set to the manager that left.<br>
+Return the result table ordered by employee_id.
+
+> select o.employee_id<br>
+from Employees o<br>
+where o.manager_id is not null and o.salary<30000<br>
+and(<br>
+select e.employee_id<br>
+from Employees e<br>
+where e.employee_id=o.manager_id<br>
+) is null<br>
+order by o.employee_id;
+
+37. https://leetcode.com/problems/exchange-seats/submissions/1643396345/?envType=study-plan-v2&envId=top-sql-50
+```
+Seat table:
++----+---------+
+| id | student |
++----+---------+
+| 1  | Abbot   |
+| 2  | Doris   |
+| 3  | Emerson |
+| 4  | Green   |
+| 5  | Jeames  |
++----+---------+
+```
+>Write a solution to swap the seat id of every two consecutive students. If the number of students is odd, the id of the last student is not swapped.<br>
+Return the result table ordered by id in ascending order.
+
+> with maxId as ( <br>
+&nbsp;&nbsp;select max(id) as idMax from Seat<br>
+)<br>
+select if(id%2=0, id-1,<br>
+if(id=(select idMax from maxId), id, id+1))<br>
+as id, student<br>
+from Seat<br>
+order by id;
+
+38. https://leetcode.com/problems/movie-rating/submissions/1643966203/?envType=study-plan-v2&envId=top-sql-50
+```
+Movies table:
++-------------+--------------+
+| movie_id    |  title       |
++-------------+--------------+
+| 1           | Avengers     |
+| 2           | Frozen 2     |
+| 3           | Joker        |
++-------------+--------------+
+Users table:
++-------------+--------------+
+| user_id     |  name        |
++-------------+--------------+
+| 1           | Daniel       |
+| 2           | Monica       |
+| 3           | Maria        |
+| 4           | James        |
++-------------+--------------+
+MovieRating table:
++-------------+--------------+--------------+-------------+
+| movie_id    | user_id      | rating       | created_at  |
++-------------+--------------+--------------+-------------+
+| 1           | 1            | 3            | 2020-01-12  |
+| 1           | 2            | 4            | 2020-02-11  |
+| 1           | 3            | 2            | 2020-02-12  |
+| 1           | 4            | 1            | 2020-01-01  |
+| 2           | 1            | 5            | 2020-02-17  | 
+| 2           | 2            | 2            | 2020-02-01  | 
+| 2           | 3            | 2            | 2020-03-01  |
+| 3           | 1            | 3            | 2020-02-22  | 
+| 3           | 2            | 4            | 2020-02-25  | 
++-------------+--------------+--------------+-------------+
+```
+> Find the name of the user who has rated the greatest number of movies. In case of a tie, return the lexicographically smaller user name. <br> <br>
+Find the movie name with the highest average rating in February 2020. In case of a tie, return the lexicographically smaller movie name.
+
+> with MovieCount as ( <br>
+&nbsp;&nbsp;select u.name, count(mr.user_id) as cnt <br>
+&nbsp;&nbsp;from MovieRating mr join Users u<br>
+&nbsp;&nbsp;on mr.user_id=u.user_id<br>
+&nbsp;&nbsp;group by mr.user_id<br>
+&nbsp;&nbsp;order by cnt desc, u.name<br>
+&nbsp;&nbsp;#added tiebreaker condition as name with comma separated<br>
+&nbsp;&nbsp;limit 1<br>
+),<br>
+ReviewAvg as (<br>
+&nbsp;&nbsp;select m.title, avg(mr.rating) as avgRating<br>
+&nbsp;&nbsp;from MovieRating mr join Movies m<br>
+&nbsp;&nbsp;on mr.movie_id=m.movie_id<br>
+&nbsp;&nbsp;where mr.created_at between '2020-02-01' and '2020-02-28'<br>
+&nbsp;&nbsp;group by mr.movie_id<br>
+&nbsp;&nbsp;order by avgRating desc, m.title<br>
+&nbsp;&nbsp;limit 1<br>
+)<br>
+select name as results from MovieCount<br>
+union all &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;#to include duplicate results as well<br>
+select title as results from ReviewAvg;
+
+39. https://leetcode.com/problems/restaurant-growth/submissions/1644102291/?envType=study-plan-v2&envId=top-sql-50
+```
+Customer table:
++-------------+--------------+--------------+-------------+
+| customer_id | name         | visited_on   | amount      |
++-------------+--------------+--------------+-------------+
+| 1           | Jhon         | 2019-01-01   | 100         |
+| 2           | Daniel       | 2019-01-02   | 110         |
+| 3           | Jade         | 2019-01-03   | 120         |
+| 4           | Khaled       | 2019-01-04   | 130         |
+| 5           | Winston      | 2019-01-05   | 110         | 
+| 6           | Elvis        | 2019-01-06   | 140         | 
+| 7           | Anna         | 2019-01-07   | 150         |
+| 8           | Maria        | 2019-01-08   | 80          |
+| 9           | Jaze         | 2019-01-09   | 110         | 
+| 1           | Jhon         | 2019-01-10   | 130         | 
+| 3           | Jade         | 2019-01-10   | 150         | 
++-------------+--------------+--------------+-------------+
+```
+
+> You are the restaurant owner and you want to analyze a possible expansion (there will be at least one customer every day).<br><br>
+Compute the moving average of how much the customer paid in a seven days window (i.e., current day + 6 days before). average_amount should be rounded to two decimal places.<br><br>
+Return the result table ordered by visited_on in ascending order.
+
+> with Total as(<br>
+&nbsp;&nbsp;select visited_on, sum(amount) as total<br>
+&nbsp;&nbsp;from Customer<br>
+&nbsp;&nbsp;group by visited_on<br>
+), RunningTotal as (<br>
+&nbsp;&nbsp;select t.visited_on,<br>
+&nbsp;&nbsp;sum(t.total) over w as amount,<br>
+&nbsp;&nbsp;round(avg(t.total) over w, 2) as average_amount,<br>
+&nbsp;&nbsp;row_number() over w as rn<br>
+&nbsp;&nbsp;from Total t<br>
+&nbsp;&nbsp;**window** w as (<br>
+&nbsp;&nbsp;&nbsp;&nbsp;order by t.visited_on<br>
+&nbsp;&nbsp;&nbsp;&nbsp;rows **between** _6 preceding_ **and** _current row_<br>
+&nbsp;&nbsp;&nbsp;&nbsp;#defined frame size for the operation to take place<br>
+&nbsp;&nbsp;)<br>
+)<br>
+select visited_on, amount, average_amount<br>
+from RunningTotal<br>
+where rn>=7;
+
+40. https://leetcode.com/problems/friend-requests-ii-who-has-the-most-friends/?envType=study-plan-v2&envId=top-sql-50
+```
+RequestAccepted table:
++--------------+-------------+-------------+
+| requester_id | accepter_id | accept_date |
++--------------+-------------+-------------+
+| 1            | 2           | 2016/06/03  |
+| 1            | 3           | 2016/06/08  |
+| 2            | 3           | 2016/06/08  |
+| 3            | 4           | 2016/06/09  |
++--------------+-------------+-------------+
+```
+
+> Write a solution to find the people who have the most friends and the most friends number.<br>
+The test cases are generated so that only one person has the most friends.
+
+> with Members as ( <br>
+&nbsp;&nbsp;select requester_id as member from RequestAccepted <br>
+&nbsp;&nbsp;union all <br>
+&nbsp;&nbsp;select accepter_id as member from RequestAccepted<br>
+)<br>
+select member as id, count(member) as num<br>
+from Members<br>
+group by member<br>
+order by num desc<br>
+limit 1;
+
+41. https://leetcode.com/problems/investments-in-2016/submissions/1644132798/?envType=study-plan-v2&envId=top-sql-50
+```
+Insurance table:
++-----+----------+----------+-----+-----+
+| pid | tiv_2015 | tiv_2016 | lat | lon |
++-----+----------+----------+-----+-----+
+| 1   | 10       | 5        | 10  | 10  |
+| 2   | 20       | 20       | 20  | 20  |
+| 3   | 10       | 30       | 20  | 20  |
+| 4   | 10       | 40       | 40  | 40  |
++-----+----------+----------+-----+-----+
+```
+
+> Write a solution to report the sum of all total investment values in 2016 tiv_2016, for all policyholders who:<br>
+have the same tiv_2015 value as one or more other policyholders, and<br><br>
+are not located in the same city as any other policyholder (i.e., the (lat, lon) attribute pairs must be unique).<br>
+Round tiv_2016 to two decimal places.<br>
+
+> select round(sum(tiv_2016),2) as tiv_2016<br>
+from Insurance<br>
+where tiv_2015 in (<br>
+&nbsp;&nbsp;select tiv_2015 from Insurance group by tiv_2015 <br>
+&nbsp;&nbsp;having count(tiv_2015)>1<br>
+)<br>
+and (lat, lon) in (<br>
+&nbsp;&nbsp;select lat, lon from Insurance group by lat, lon<br>
+&nbsp;&nbsp;having count(pid)=1<br>
+);
+
+42. https://leetcode.com/problems/department-top-three-salaries/?envType=study-plan-v2&envId=top-sql-50
+```
+Employee table:
++----+-------+--------+--------------+
+| id | name  | salary | departmentId |
++----+-------+--------+--------------+
+| 1  | Joe   | 85000  | 1            |
+| 2  | Henry | 80000  | 2            |
+| 3  | Sam   | 60000  | 2            |
+| 4  | Max   | 90000  | 1            |
+| 5  | Janet | 69000  | 1            |
+| 6  | Randy | 85000  | 1            |
+| 7  | Will  | 70000  | 1            |
++----+-------+--------+--------------+
+Department table:
++----+-------+
+| id | name  |
++----+-------+
+| 1  | IT    |
+| 2  | Sales |
++----+-------+
+```
+> A company's executives are interested in seeing who earns the most money in each of the company's departments. A high earner in a department is an employee who has a salary in the top three unique salaries for that department.<br><br>
+Write a solution to find the employees who are high earners in each of the departments.
+
+>  with RankTable as (<br>
+&nbsp;&nbsp;select e.name as Employee, e.salary, d.name as Department,<br>
+&nbsp;&nbsp;**_dense_rank_**() over(<br>
+&nbsp;&nbsp;&nbsp;&nbsp;partition by e.departmentId<br>
+&nbsp;&nbsp;&nbsp;&nbsp;order by e.salary desc<br>
+&nbsp;&nbsp;) as rn<br>
+&nbsp;&nbsp;from Employee e join Department d<br>
+&nbsp;&nbsp;on d.id=e.departmentId<br>
+)<br>
+select Department, Employee, salary<br>
+from RankTable<br>
+where rn in (1,2,3);<br><br>
+#Normal rank function assings same number if a tie happens and for the next row does not assign the next rank(Assigns like -> 1,2,2,4)<br>
+#Dense rank assigns same number for a tie and assigns next rank for next row (Assigns like-> 1,2,2,3)
+
+43. https://leetcode.com/problems/fix-names-in-a-table/?envType=study-plan-v2&envId=top-sql-50
+```
+Users table:
++---------+-------+
+| user_id | name  |
++---------+-------+
+| 1       | aLice |
+| 2       | bOB   |
++---------+-------+
+```
+> Write a solution to fix the names so that only the first character is uppercase and the rest are lowercase.<br><br>
+Return the result table ordered by user_id.
+
+> select user_id, <br>
+**concat**(_upper_(**left**(`name`, 1)), _lower_(**substring**(`name`,2))) as name<br>
+from Users<br>
+order by user_id;
+
+44. https://leetcode.com/problems/patients-with-a-condition/?envType=study-plan-v2&envId=top-sql-50
+```
+Patients table:
++------------+--------------+--------------+
+| patient_id | patient_name | conditions   |
++------------+--------------+--------------+
+| 1          | Daniel       | YFEV COUGH   |
+| 2          | Alice        |              |
+| 3          | Bob          | DIAB100 MYOP |
+| 4          | George       | ACNE DIAB100 |
+| 5          | Alain        | DIAB201      |
++------------+--------------+--------------+
+```
+
+> Write a solution to find the patient_id, patient_name, and conditions of the patients who have Type I Diabetes. Type I Diabetes always starts with DIAB1 prefix.
+
+> select *<br>
+from Patients<br>
+where conditions like 'DIAB1%' or conditions like '% DIAB1%';
+
+45. https://leetcode.com/problems/delete-duplicate-emails/?envType=study-plan-v2&envId=top-sql-50
+```
+Person table:
++----+------------------+
+| id | email            |
++----+------------------+
+| 1  | john@example.com |
+| 2  | bob@example.com  |
+| 3  | john@example.com |
++----+------------------+
+```
+> Write a solution to delete all duplicate emails, keeping only one unique email with the smallest id.<br><br>
+For SQL users, please note that you are supposed to write a DELETE statement and not a SELECT one.<br><br>
+For Pandas users, please note that you are supposed to modify Person in place.<br><br>
+After running your script, the answer shown is the Person table. The driver will first compile and run your piece of code and then show the Person table. The final order of the Person table does not matter.
+
+> with NumberedRows as (<br>
+&nbsp;&nbsp;select id, email,<br>
+&nbsp;&nbsp;row_number() over(<br>
+&nbsp;&nbsp;partition by email<br>
+&nbsp;&nbsp;order by id<br>
+&nbsp;&nbsp;) as rn<br>
+&nbsp;&nbsp;from Person<br>
+)<br>
+delete p<br>
+from person p join NumberedRows n on p.id=n.id<br>
+where n.rn>1;
+
+46. https://leetcode.com/problems/second-highest-salary/?envType=study-plan-v2&envId=top-sql-50
+```
+Employee table:
++----+--------+
+| id | salary |
++----+--------+
+| 1  | 100    |
+| 2  | 200    |
+| 3  | 300    |
++----+--------+
+```
+> Write a solution to find the second highest distinct salary from the Employee table. If there is no second highest salary, return null
+
+> select max(salary) as SecondHighestSalary<br>
+from Employee where salary not in (<br>
+&nbsp;&nbsp;select max(salary) from Employee<br>
+);
+
+47. https://leetcode.com/problems/group-sold-products-by-the-date/?envType=study-plan-v2&envId=top-sql-50
+```
+Activities table:
++------------+------------+
+| sell_date  | product     |
++------------+------------+
+| 2020-05-30 | Headphone  |
+| 2020-06-01 | Pencil     |
+| 2020-06-02 | Mask       |
+| 2020-05-30 | Basketball |
+| 2020-06-01 | Bible      |
+| 2020-06-02 | Mask       |
+| 2020-05-30 | T-Shirt    |
++------------+------------+
+```
+> Write a solution to find for each date the number of different products sold and their names.<br><br>
+The sold products names for each date should be sorted lexicographically.<br><br>
+Return the result table ordered by sell_date.<br><br>
+
+> select o.sell_date, count(DISTINCT o.product) as num_sold,<br>
+**GROUP_CONCAT**(DISTINCT o.product _order by_ o.product) as products<br>
+from Activities o<br>
+group by o.sell_date;
+
+48. https://leetcode.com/problems/list-the-products-ordered-in-a-period/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Products table:
++-------------+-----------------------+------------------+
+| product_id  | product_name          | product_category |
++-------------+-----------------------+------------------+
+| 1           | Leetcode Solutions    | Book             |
+| 2           | Jewels of Stringology | Book             |
+| 3           | HP                    | Laptop           |
+| 4           | Lenovo                | Laptop           |
+| 5           | Leetcode Kit          | T-shirt          |
++-------------+-----------------------+------------------+
+Orders table:
++--------------+--------------+----------+
+| product_id   | order_date   | unit     |
++--------------+--------------+----------+
+| 1            | 2020-02-05   | 60       |
+| 1            | 2020-02-10   | 70       |
+| 2            | 2020-01-18   | 30       |
+| 2            | 2020-02-11   | 80       |
+| 3            | 2020-02-17   | 2        |
+| 3            | 2020-02-24   | 3        |
+| 4            | 2020-03-01   | 20       |
+| 4            | 2020-03-04   | 30       |
+| 4            | 2020-03-04   | 60       |
+| 5            | 2020-02-25   | 50       |
+| 5            | 2020-02-27   | 50       |
+| 5            | 2020-03-01   | 50       |
++--------------+--------------+----------+
+```
+> Write a solution to get the names of products that have at least 100 units ordered in February 2020 and their amount.
+
+> select p.product_name, sum(o.unit) as unit<br>
+from Orders o join Products p on o.product_id=p.product_id<br>
+where o.order_date between '2020-02-01' and '2020-02-29'<br>
+group by p.product_name<br>
+having sum(o.unit)>=100;
+
+49. https://leetcode.com/problems/find-users-with-valid-e-mails/description/?envType=study-plan-v2&envId=top-sql-50
+```
+Users table:
++---------+-----------+-------------------------+
+| user_id | name      | mail                    |
++---------+-----------+-------------------------+
+| 1       | Winston   | winston@leetcode.com    |
+| 2       | Jonathan  | jonathanisgreat         |
+| 3       | Annabelle | bella-@leetcode.com     |
+| 4       | Sally     | sally.come@leetcode.com |
+| 5       | Marwan    | quarz#2020@leetcode.com |
+| 6       | David     | david69@gmail.com       |
+| 7       | Shapiro   | .shapo@leetcode.com     |
++---------+-----------+-------------------------+
+```
+> Write a solution to find the users who have valid emails.<br><br>
+A valid e-mail has a prefix name and a domain where:<br><br>
+The prefix name is a string that may contain letters (upper or lower case), digits, underscore '_', period '.', and/or dash '-'. The prefix name must start with a letter.<br><br>
+The domain is '@leetcode.com'.
+
+```
+select * from Users 
+where mail regexp '^[a-zA-Z][a-zA-Z0-9_.-]*@leetcode\\.com$';
+```
+
+```
+^ - start of the string
+[] - contains single character of the gn symbols
+[]* - contains 0 to many characters
+\\ - escape character for reserved symbols
+$ - end of the string
+```
