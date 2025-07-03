@@ -168,7 +168,7 @@ Calculations
       - Periodically (e.g., every 30 minutes), flush aggregated counts to Cassandra in batch. (This is done to avoid frequent DB hits. Redis is very well suitable for counting operations. So for 30 minutes, if a URL got hit 5000 times. We need to make 5000 db calls for a single url if we avoid redis which can be reduced to 1 db update for every 30 min. Redis here behaves as a Aggregator)
       - Redis data will be cleared after a certain TTL
 
-### Security and Permissions
+### 11. Security and Permissions
 - Can users create private URLs?
   - We can store permission level (public/private) with each URL in the database
   - We can also create a separate table to store UserIDs that have permission to see a specific URL. If a user is not permitted, we will throw **401 forbidden**.
