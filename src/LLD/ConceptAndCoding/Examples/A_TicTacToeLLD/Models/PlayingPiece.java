@@ -1,4 +1,4 @@
-package LLD.ConceptAndCoding.E_TicTacToeLLD.Models;
+package LLD.ConceptAndCoding.Examples.A_TicTacToeLLD.Models;
 
 public class PlayingPiece {
     PieceType piece;

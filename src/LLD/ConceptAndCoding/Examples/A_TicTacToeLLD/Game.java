@@ -1,13 +1,12 @@
-package LLD.ConceptAndCoding.E_TicTacToeLLD;
+package LLD.ConceptAndCoding.Examples.A_TicTacToeLLD;
 
-import LLD.ConceptAndCoding.E_TicTacToeLLD.Models.Board;
-import LLD.ConceptAndCoding.E_TicTacToeLLD.Models.PieceO;
-import LLD.ConceptAndCoding.E_TicTacToeLLD.Models.PieceX;
-import LLD.ConceptAndCoding.E_TicTacToeLLD.Models.Player;
+import LLD.ConceptAndCoding.Examples.A_TicTacToeLLD.Models.Board;
+import LLD.ConceptAndCoding.Examples.A_TicTacToeLLD.Models.PieceO;
+import LLD.ConceptAndCoding.Examples.A_TicTacToeLLD.Models.PieceX;
+import LLD.ConceptAndCoding.Examples.A_TicTacToeLLD.Models.Player;
 
 import java.util.Deque;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Scanner;
 
 public class Game {
