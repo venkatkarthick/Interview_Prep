@@ -7,4 +7,4 @@
 - **Caching**. Client checks for proxy for data, if not goes for real object to get data
 - **Preprocessing and Postprocessing** - Before calling a real object, proxy object will pre process or post process the request
 - Springboot uses bean proxy to create Spring beans
-- 
+- We can hace multiple proxy objects between client and real object
