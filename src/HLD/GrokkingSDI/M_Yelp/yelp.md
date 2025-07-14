@@ -1,6 +1,6 @@
 # Yelp
 
-- Tell me this logic in more understandable and revvisable format for System design interviews with flashcards for quick revision. It is for Yelp design
+- Tell me this logic in more understandable and revisable format for System design interviews for quick revision. It is for Yelp design
 
 
 ## ✅ 1. Why Yelp / Proximity Server?
