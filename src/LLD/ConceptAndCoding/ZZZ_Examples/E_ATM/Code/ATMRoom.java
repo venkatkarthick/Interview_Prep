@@ -14,8 +14,14 @@ public class ATMRoom {
             atmRoom.atm.printStatus();
             atmRoom.atm.getAtmState().insertCard(atmRoom.atm, atmRoom.user.card);
             atmRoom.atm.getAtmState().authenticatPin(atmRoom.atm, atmRoom.user.card, 122113);
-            atmRoom.atm.getAtmState().selectOperation(atmRoom.atm, atmRoom.user.card);
-            //atmRoom.atm.getAtmState().selectOperation(atmRoom.atm, atmRoom.user.card, TransactionType.CHECK_BALANCE);
+            TransactionType transactionType=atmRoom.atm.getAtmState().selectOperation(atmRoom.atm, atmRoom.user.card);
+            if(transactionType==TransactionType.WITHDRAW_AMOUNT) {
+                atmRoom.atm.getAtmState().cashWithdrawal(atmRoom.atm, atmRoom.user.card);
+            } else {
+                atmRoom.atm.getAtmState().displayBalance(atmRoom.atm, atmRoom.user.card);
+            }
+            atmRoom.atm.printStatus();
+
         } catch (Exception e) {
             System.err.println(e.getMessage());
         }
@@ -24,9 +30,9 @@ public class ATMRoom {
     private void initialize() {
 
         //create ATM
-        atm=new ATM(3500, 1, 2, 5);
+        atm=new ATM(3500, 5, 10, 15);
 
         //create User
-        user=new User(new Card(new BankAccount(2000)));
+        user=new User(new Card(new BankAccount(20000)));
     }
 }

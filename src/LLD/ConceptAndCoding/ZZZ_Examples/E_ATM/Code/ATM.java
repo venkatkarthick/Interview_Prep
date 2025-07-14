@@ -22,6 +22,16 @@ public class ATM {
         System.out.println(this);
     }
 
+    public void deductTwoThousandNotes(int deductValue) {
+        noOfTwoThousandNotes=noOfTwoThousandNotes-deductValue;
+    }
+    public void deductFiveHundredNotes(int deductValue) {
+        noOfFiveHundredNotes=noOfFiveHundredNotes-deductValue;
+    }
+    public void deductOneHundredNotes(int deductValue) {
+        noOfOneHundredNotes=noOfOneHundredNotes-deductValue;
+    }
+
     //Getters and setters
     public ATMState getAtmState() {
         return atmState;

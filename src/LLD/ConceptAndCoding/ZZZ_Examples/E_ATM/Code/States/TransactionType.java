@@ -6,7 +6,7 @@ public enum TransactionType {
     int value;
 
     TransactionType(int value) {
-        value=this.value;
+        this.value=value;
     }
 
     public static TransactionType getTranscation(int value) {

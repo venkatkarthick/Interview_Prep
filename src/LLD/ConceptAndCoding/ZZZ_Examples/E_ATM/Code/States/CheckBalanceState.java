@@ -3,20 +3,16 @@ package LLD.ConceptAndCoding.ZZZ_Examples.E_ATM.Code.States;
 import LLD.ConceptAndCoding.ZZZ_Examples.E_ATM.Code.ATM;
 import LLD.ConceptAndCoding.ZZZ_Examples.E_ATM.Code.Card;
 
-public class HasCardState extends ATMState {
+public class CheckBalanceState extends ATMState {
 
-    public HasCardState() {
-        System.out.println("Entered into Has Card State");
+    public CheckBalanceState(ATM atm, Card card) throws Exception {
+        System.out.println("Entered into check balance state");
     }
 
     @Override
-    public void authenticatPin(ATM atm, Card card, int pin) throws Exception {
-        if(card.isCorrectPinEntered(pin)) {
-            atm.setAtmState(new SelectOperationState());
-        } else {
-            System.out.println("Invalid Pin");
-            exit(atm);
-        }
+    public void displayBalance(ATM atm, Card card) throws Exception {
+        System.out.println("User balance is : " + card.getBankBalance());
+        exit(atm);
     }
 
     @Override
@@ -33,6 +29,6 @@ public class HasCardState extends ATMState {
 
     @Override
     public String toString() {
-        return "Has Card State";
+        return "Check Balance State";
     }
 }

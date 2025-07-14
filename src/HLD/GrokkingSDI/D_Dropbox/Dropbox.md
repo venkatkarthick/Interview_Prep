@@ -119,135 +119,123 @@
 
 ---
 
-## **5. High-Level Architecture**
+## ✅ Problem Statement
 
-**Main Idea:**
-Each client monitors a **local sync folder** (workspace). Any changes—additions, deletions, or modifications—are propagated to:
-
-* **Cloud storage** (for file chunks)
-* **Metadata servers** (for file/folder state)
-* **Other client devices** (via Sync Service)
-
-### 📌 Core Components:
-
-1. **Client**
-2. **Metadata DB**
-3. **Synchronization Service**
-4. **Message Queue**
-5. **Cloud Storage (Block/File Store)**
+Allow users to sync a workspace folder across devices with automatic upload, download, and change propagation. Changes on one device (create/update/delete) should reflect on all connected devices in near real-time.
 
 ---
 
-## **6. Component-Level Design (for Interview)**
+## 5️⃣ High-Level Design
 
-### 🔹 A. Client
+### 🔧 Core Requirement
 
-**Responsibilities:**
+* Users specify a **workspace folder**.
+* Files placed/modified/deleted in this folder get **synced** to the cloud and across devices.
+* Sync includes both **file content** and **metadata** (name, size, timestamp, sharing info).
 
-* Monitor local workspace (watch for file system events)
-* Upload/download chunks to/from cloud storage
-* Sync metadata with server (file name, size, version, etc.)
-* Listen for updates (long polling / WebSocket)
-* Resolve conflicts (e.g., concurrent edits or offline changes)
+### 🧩 Key Design Components
 
-**Subcomponents:**
-
-| Subcomponent            | Role                                           |
-| ----------------------- | ---------------------------------------------- |
-| **Metadata DB (local)** | Cache of file paths, chunk list, versions      |
-| **Chunker**             | Splits/merges files (e.g., into 4MB chunks)    |
-| **Watcher**             | Observes filesystem events                     |
-| **Indexer**             | Updates local metadata & notifies Sync Service |
-
-> 🔁 Sync only changed chunks using hash comparison (e.g., SHA-256).
+* **Clients**: Detect changes, sync content + metadata, and listen for updates.
+* **Metadata Servers**: Store metadata (file info, versions, etc.) in a structured DB.
+* **Block Storage**: Stores file content in **chunked** format.
+* **Sync Service**: Manages versioning and propagates changes.
+* **Message Queues**: Enables asynchronous and scalable communication.
 
 ---
 
-### 🔹 B. Metadata Database
+## 6️⃣ Component Design
 
-**Stores metadata for:**
+### a. 🖥️ Client
 
-* Files (name, type, version, owner)
-* Chunks (IDs, order, hash)
-* Users and devices
-* Workspaces (linked folders)
+Monitors local workspace, syncs files/chunks, manages local metadata, and handles conflict resolution.
 
-**Tech Choices:**
+**Key Subcomponents:**
 
-* **Relational DB (MySQL)** → native ACID support
-* **Or NoSQL (e.g., DynamoDB)** → requires custom ACID handling in app logic
+1. **Internal Metadata DB**: Local cache of file/chunk info for offline access.
+2. **Chunker**: Splits files into 4MB chunks (optimizable), detects diffs using hashes.
+3. **Watcher**: Monitors file system changes, listens to server notifications.
+4. **Indexer**: Updates internal metadata, triggers upload/download via Sync Service.
 
-> 💡 Choose RDBMS for easier transactional guarantees unless extremely high write throughput is needed.
+**Key Considerations:**
 
----
-
-### 🔹 C. Synchronization Service
-
-**Responsibilities:**
-
-* Receives file changes from clients
-* Applies updates to Metadata DB
-* Notifies subscribed devices of updates
-* Resolves consistency issues (e.g., versioning conflicts)
-* Uses **differencing algorithm** to reduce data sync overhead
-
-> 📬 Can use **message queues** to broadcast updates and offload processing.
+* Use **chunking + hash-based diff** to save bandwidth.
+* Store metadata locally for speed + offline support.
+* Use **HTTP Long Polling** or **WebSockets** to get near real-time updates.
+* **Exponential backoff** for retries on slow/unavailable servers.
+* Mobile clients may sync only on demand to save battery/data.
 
 ---
 
-### 🔹 D. Message Queue
+### b. 🗃️ Metadata Database
 
-**Types:**
+Stores structured metadata about:
 
-* **Request Queue:** All client update requests
-* **Response Queues:** One per subscribed client/device
+* Files and their versions
+* Chunks and checksums
+* Users
+* Devices
+* Workspaces (sync folders)
 
-**Benefits:**
+**DB Options:**
 
-* Decouples clients from Sync Service
-* Scalable async processing
-* Supports both **pull and push** notification models
-
----
-
-### 🔹 E. Cloud / Block Storage
-
-**Stores:**
-
-* Actual file chunks
-* Indexed by hash (for deduplication)
-* Clients interact directly for upload/download (bypass Sync Service)
-
-**Advantages:**
-
-* Scalable, cheap storage (e.g., AWS S3)
-* Separate from metadata layer
-* Enables deduplication at chunk level → reduce storage footprint
+* **Relational DB (MySQL)**: Simpler consistency using built-in ACID.
+* **NoSQL (DynamoDB, Cassandra)**: More scalable, but require app-level consistency logic.
 
 ---
 
-## ⚙️ Sync Flow (Interview Walkthrough)
+### c. 🔁 Synchronization Service
 
-1. **User modifies a file** locally.
-2. **Watcher** detects change → notifies **Indexer**
-3. **Indexer** uses **Chunker** to split file → compute hashes → upload only changed chunks
-4. Metadata updated locally + pushed to Sync Service via queue
-5. **Sync Service** validates update, writes to Metadata DB
-6. Sync Service pushes update to **Response Queues** for other devices
-7. Other clients receive the update, fetch new chunks, and apply changes
+Central logic hub for:
+
+* Validating changes with metadata DB.
+* Broadcasting changes to subscribed devices.
+* Handling versioning and consistency.
+* Running **differencing algorithms** to reduce data transfer.
+
+**Optimization:**
+
+* Transmit only changed chunks using hash comparison.
+* Deduplicate chunks with identical hashes, even across users.
+
+**Scaling Tip:**
+
+* Use multiple Sync Service instances pulling from a **global request queue**.
 
 ---
 
-## ✅ Interview Tips
+### d. 📩 Message Queue Service
 
-| Question              | Points to Hit                             |
-| --------------------- | ----------------------------------------- |
-| How to optimize sync? | Chunking + Hashing + Delta updates        |
-| Data consistency?     | ACID → RDBMS or programmatic with NoSQL   |
-| Offline edits?        | Local metadata DB + queued updates        |
-| Conflict resolution?  | Timestamps or version vector              |
-| Scale messaging?      | Global queue + per-client response queues |
-| Reduce bandwidth?     | Only upload diffs (changed chunks)        |
-| Mobile sync?          | On-demand only to save battery/data       |
+Enables loose coupling and high throughput.
+
+**Two Types of Queues:**
+
+1. **Request Queue** (shared/global): Clients post changes here.
+2. **Response Queues** (per-client): Sync Service posts updates to these.
+
+Helps avoid polling overload and supports **push model** for updates.
+
+---
+
+### e. ☁️ Cloud/Block Storage
+
+* Stores only file chunks (content).
+* Clients interact **directly** with it.
+* Decouples storage from metadata for flexibility and modular scaling.
+
+---
+
+## 🧠 Interview Highlights (Cheat Sheet)
+
+| Aspect            | Key Design                                                        |
+| ----------------- | ----------------------------------------------------------------- |
+| File Sync         | Workspace folder monitored, changes synced                        |
+| Optimization      | Chunking (4MB), hash diffs, deduplication                         |
+| Real-time Updates | Long polling / WebSockets + Response Queues                       |
+| DB Choice         | RDBMS for simplicity, NoSQL for scale (with tradeoffs)            |
+| Sync Consistency  | Sync Service ensures consistency and versioning                   |
+| Offline Mode      | Clients use local metadata DB                                     |
+| Messaging         | Async Request/Response queues using middleware (Kafka, SQS, etc.) |
+| Conflict Handling | Client-side + server-side conflict resolution                     |
+| Mobile Clients    | On-demand sync to conserve resources                              |
 
 ---

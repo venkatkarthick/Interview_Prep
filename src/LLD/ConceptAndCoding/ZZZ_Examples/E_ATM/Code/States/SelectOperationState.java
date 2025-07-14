@@ -20,21 +20,20 @@ public class SelectOperationState extends ATMState {
     }
 
     @Override
-    public void selectOperation(ATM atm, Card card) throws Exception {
+    public TransactionType selectOperation(ATM atm, Card card) throws Exception {
         switch (transactionType) {
             case CHECK_BALANCE -> {
-                atm.setAtmState(new CheckBalanceState());
-                break;
+                atm.setAtmState(new CheckBalanceState(atm, card));
             }
             case WITHDRAW_AMOUNT -> {
                 atm.setAtmState(new CashWithdrawalState());
-                break;
             }
             default -> {
                 System.out.println("Invalid option");
                 exit(atm);
             }
         }
+        return transactionType;
     }
 
     @Override
@@ -47,5 +46,10 @@ public class SelectOperationState extends ATMState {
         returnCard();
         System.out.println("Exitted transaction");
         atm.setAtmState(new IdleState());
+    }
+
+    @Override
+    public String toString() {
+        return "Select Operation State";
     }
 }

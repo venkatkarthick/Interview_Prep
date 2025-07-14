@@ -22,7 +22,7 @@ public class Card {
         return bankAccount.getBalance();
     }
 
-    public int deductBalance(int amount) {
+    public void deductBalance(int amount) {
         bankAccount.withdrawAmount(amount);
     }
 
