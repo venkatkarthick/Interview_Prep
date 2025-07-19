@@ -141,6 +141,7 @@ Allow users to sync a workspace folder across devices with automatic upload, dow
 * **Sync Service**: Manages versioning and propagates changes.
 * **Message Queues**: Enables asynchronous and scalable communication.
 
+![img.png](HLDFlow.png)
 ---
 
 ## 6️⃣ Component Design
@@ -163,6 +164,8 @@ Monitors local workspace, syncs files/chunks, manages local metadata, and handle
 * Use **HTTP Long Polling** or **WebSockets** to get near real-time updates.
 * **Exponential backoff** for retries on slow/unavailable servers.
 * Mobile clients may sync only on demand to save battery/data.
+
+![img.png](client.png)
 
 ---
 
@@ -214,6 +217,7 @@ Enables loose coupling and high throughput.
 
 Helps avoid polling overload and supports **push model** for updates.
 
+![img.png](Queue.png)
 ---
 
 ### e. ☁️ Cloud/Block Storage
@@ -237,5 +241,137 @@ Helps avoid polling overload and supports **push model** for updates.
 | Messaging         | Async Request/Response queues using middleware (Kafka, SQS, etc.) |
 | Conflict Handling | Client-side + server-side conflict resolution                     |
 | Mobile Clients    | On-demand sync to conserve resources                              |
+
+---
+
+## 🔄 7. File Processing Workflow
+
+When **Client A** updates a shared file:
+
+### 🔁 Sequence:
+
+1. **Client A uploads** updated chunks directly to Cloud Storage (using pre-signed URLs).
+2. **Client A sends metadata update** to Sync Service (e.g., chunk hashes, version).
+3. **Sync Service updates** Metadata DB and pushes notifications to Clients B & C.
+4. **Clients B & C** receive notification (via their response queues) and download only changed chunks.
+
+📌 **Offline Clients**: Updates are held in their **individual response queues** until they come online.
+
+---
+
+## 📦 8. Data Deduplication
+
+### Goal: Avoid storing and transferring duplicate chunks across users or versions.
+
+### 🔹 a. Post-Process Deduplication
+
+* Store all chunks first → Dedup later via background jobs.
+* ✅ No client wait time
+* ❌ Wastes temporary storage + network bandwidth
+
+### 🔹 b. In-Line Deduplication (**Preferred**)
+
+* Client/Synchronization Service calculates chunk hash **before upload**
+* If identical chunk exists (based on hash), we **reuse** it
+* ✅ Saves bandwidth and storage instantly
+* ❌ Slower client-side uploads due to real-time hashing
+
+---
+
+## 🗂️ 9. Metadata Partitioning
+
+Needed to scale Metadata DB for billions of files/chunks.
+
+### 🔸 1. **Vertical Partitioning**
+
+* Split by feature: user tables on one DB, file/chunk on another
+* ✅ Simple
+* ❌ Not scalable for huge tables; cross-DB joins are expensive
+
+### 🔸 2. **Range-Based Partitioning**
+
+* Partition by file path prefix (e.g., all "A\*" in one DB)
+* ✅ Predictable
+* ❌ Can lead to **skew** if one prefix dominates
+
+### 🔸 3. **Hash-Based Partitioning** (**Preferred**)
+
+* Hash `FileID` → partition
+* ✅ Balanced distribution
+* ❌ Still possible skew → fix with **Consistent Hashing**
+
+---
+
+## ⚡ 10. Caching
+
+### 🔹 a. Block Storage Cache
+
+* Use **Memcached** or similar to cache hot chunks by their hash
+* Block servers check cache before cloud storage
+* ✅ Faster I/O for popular files
+
+### 🔹 b. Metadata Cache
+
+* Cache frequent metadata (e.g., chunk-to-file mappings) near Sync Service
+* ✅ Reduces Metadata DB load
+
+🔁 **Eviction Policy**: Use **LRU (Least Recently Used)** to discard cold chunks
+
+---
+
+## 🧰 11. Load Balancing (LB)
+
+To handle **high client traffic**, place LBs in front of:
+
+### 1. **Block Servers**
+
+### 2. **Metadata Servers**
+
+### 🔹 a. Round Robin (Basic)
+
+* ✅ Simple and effective
+* ❌ Ignores actual server load
+
+### 🔹 b. Smart LB (Preferred for scale)
+
+* Uses **health checks + server load metrics**
+* ✅ Dynamically adjusts traffic
+* ✅ Removes dead/slow nodes from rotation
+
+---
+
+## 🔐 12. Security, Permissions & File Sharing
+
+### 🔹 File Access Control
+
+* Metadata DB stores **permissions per file**
+
+  * Owner
+  * Shared users
+  * Public/Private flags
+
+### 🔹 Client Authorization
+
+* Clients get **pre-signed URLs** from Sync Service for storage access
+* Only authorized users/devices can upload/download
+
+### 🔹 Encryption (Implied best practice)
+
+* **Data-at-Rest**: Encrypt chunks in Cloud Storage
+* **Data-in-Transit**: Use HTTPS for all communication
+
+![img.png](LLD.png)
+---
+
+## 🧠 Interview Summary Sheet
+
+| Topic            | Key Insight                                                 |
+| ---------------- | ----------------------------------------------------------- |
+| File Update Flow | Chunk upload → Metadata update → Notification to clients    |
+| Deduplication    | Use in-line dedup with hash comparison (preferably SHA-256) |
+| Metadata Scaling | Hash-based partitioning + Consistent Hashing                |
+| Caching          | Cache chunks (block-level) & metadata using LRU             |
+| Load Balancing   | Round-robin initially, move to load-aware LB                |
+| Security         | Use permission tables, pre-signed URLs, encryption          |
 
 ---
