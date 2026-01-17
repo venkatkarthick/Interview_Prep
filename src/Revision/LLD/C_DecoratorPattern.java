@@ -4,6 +4,11 @@ import LLD.ConceptAndCoding.C_DecoratorPattern.Margharita;
 
 public class C_DecoratorPattern {
 
+    //Base object is decorated with features
+    //Problem addressed: Class Explosion-We are creating class for all combination of base and features. If one new topping is introduced, again all its combination classes need to be created.
+    //This pattern allows you to add add new functionality to objects dynamically without alerting their original structure.
+
+    //Base
     static abstract class Pizza {
         public int cost() {
             return 100;

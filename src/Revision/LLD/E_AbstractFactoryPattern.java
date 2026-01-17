@@ -4,6 +4,8 @@ import java.util.List;
 
 public class E_AbstractFactoryPattern {
 
+    //It is factory of factories where each sub factory is itself a simple factory.
+
     //Products
     interface Vehicle {
         public String getName();

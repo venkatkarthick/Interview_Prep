@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class B_ObserverPattern {
+    //It is a behavioural design pattern where an object (aka 'observable' or 'publisher') maintains a list of dependents (or 'observers') and automatically notifies the observer when there is a change in yhe state.
+    //2 Models - Push(Observable pushes he data). Pull(Observer holds the observable object and it pulls the data using observable object when the state of Observable got update)
+
+    //Pull Model
     interface Observable{
         public void add(Observer observer);
         public void remove(Observer observer);
@@ -48,11 +52,11 @@ public class B_ObserverPattern {
 
 
     interface Observer {
-        public void update();
+        public void update(); //Here, In Push model, update function has observable object as parameter passes it down to Observer
     }
     static class EmailObserver implements Observer{
         String user;
-        Observable observable;
+        Observable observable; //Pull model
         EmailObserver(String user, Observable observable) {
             this.user=user;
             this.observable=observable;
@@ -60,7 +64,7 @@ public class B_ObserverPattern {
         }
         @Override
         public void update() {
-            System.out.println("Notifying the user " + user + " through email for the stock count : " +observable.getStockCount());
+            System.out.println("Notifying the user " + user + " through email for the stock count : " +observable.getStockCount()); //Observer pulls only required data from observable
         }
     }
     static class SMSObserver implements Observer{
