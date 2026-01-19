@@ -15,12 +15,15 @@ public class CodingQuestions {
         //Inside sout, After a string is seen, all other objects are treated as strings
     }
 
-    public static void q3() {
-        System.out.println("Hello World");
-        String str="RRR";
-        String[] result = str.split("");
-        //Splits char by char as string. Use toCharArray for char[]
-        System.out.println(Arrays.toString(result));
+    static class q3{
+        public static void main(String[] args) {
+            System.out.println("Hello World");
+            String str="RRR";
+            String[] result = str.split("");
+            //Splits char by char as string. Use toCharArray for char[]
+            System.out.println(Arrays.toString(result));
+            System.out.println(Arrays.toString(str.toCharArray()));
+        }
     }
 
     public static void q4() {
@@ -40,14 +43,18 @@ public class CodingQuestions {
         //2.0 not 2.5 because inputs are int
     }
 
-    public static void q7() {
-        String s = "Java";
-        s.replace('J', 'B');
-        System.out.println(s);
+    static class q7{
+        public static void main(String[] args) {
+                String s = "Java";
+                String newS=s.replace('J', 'B');
+                System.out.println(s);
+                System.out.println(newS);
 
-        //return java not bava since strings are immutable
-        // and replace will give a return value to store the updated value
+                //return java not bava since strings are immutable
+                // and replace will give a return value to store the updated value
+        }
     }
+
 
     public static void q8() {
         String s1 = "abc";
@@ -83,9 +90,11 @@ public class CodingQuestions {
         //0. Since substring loops from begInd to endInd-1. It will empty String "" and its length is 0
     }
 
-    public static void q13() {
-        String s="J";
-        System.out.println(s.repeat(3));
+    static class q13 {
+        public static void main(String[] args) {
+            String s="J";
+            System.out.println(s.repeat(3));
+        }
     }
 
     public static class q14 {
@@ -185,32 +194,39 @@ public class CodingQuestions {
         }
     }
 
-    public static void q27() {
-        List<String> list=new ArrayList<>();
-        list.add("A");
-        list.add("B");
-        list.add("C");
-        list.remove("B");
-        list.remove(1);
-        System.out.println(list);
+    public static class q27 {
+        public static void main(String[] args) {
+            List<String> list = new ArrayList<>();
+            list.add("A");
+            list.add("B");
+            list.add("C");
+            list.remove("B");
+            list.remove(1);
+            System.out.println(list);
+        }
     }
 
-    public static void q28() {
-        List<Integer> list=new ArrayList<>(Arrays.asList(1,2,3));
-        list.remove(2);
-        System.out.println(list);
+    public static class q28 {
+        public static void main(String[] args) {
+            List<Integer> list = new ArrayList<>(Arrays.asList(1, 2, 3));
+            list.remove(2);
+            list.remove(Integer.valueOf(2));
+            System.out.println(list);
+        }
         //[1,2] -> here primitive integer is passed so remove from index method invoked
         // We need to pass Integer object as Integer.valueOf(2) to invoke remove an element method
     }
 
-    public static void q29() {
-        List<String> list=new ArrayList<>(Arrays.asList("A","B","C"));
-        for(String s : list) {
-            if(s.equals("A")) {
-                list.remove(s);
+    public static class q29 {
+        public static void main(String[] args) {
+            List<String> list = new ArrayList<>(Arrays.asList("A", "B", "C"));
+            for (String s : list) {
+                if (s.equals("A")) {
+                    list.remove(s);
+                }
             }
+            System.out.println(list);
         }
-        System.out.println(list);
         //throws concurrent modification exception.
         // Use structural modifications inside for loop
     }
