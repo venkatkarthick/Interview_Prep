@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mxfile host="app.diagrams.net">
+  <diagram name="Altcha OTP - Hybris" id="altcha-otp-hybris">
+    <mxGraphModel dx="1336" dy="744" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+
+        <!-- Storefront -->
+        <mxCell id="storefrontGroup" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFB3AA;strokeColor=#E46A56;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="40" y="140" width="220" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="storefrontTitle" value="Storefront" style="text;html=1;align=center;verticalAlign=top;fontSize=16;fontStyle=1;" vertex="1" parent="storefrontGroup">
+          <mxGeometry x="0" y="8" width="220" height="30" as="geometry"/>
+        </mxCell>
+        <mxCell id="storefrontIcon" value=" " style="shape=mxgraph.generic.browser;verticalLabelPosition=bottom;verticalAlign=top;aspect=fixed;html=1;fillColor=none;strokeColor=#E46A56;" vertex="1" parent="storefrontGroup">
+          <mxGeometry x="22" y="42" width="176" height="120" as="geometry"/>
+        </mxCell>
+        <mxCell id="storefrontSteps" value="GET /getChallenge\nPOST /sendOTP" style="text;html=1;align=left;verticalAlign=bottom;fontSize=12;" vertex="1" parent="storefrontGroup">
+          <mxGeometry x="12" y="165" width="196" height="48" as="geometry"/>
+        </mxCell>
+
+        <!-- Hybris Backend (outer) -->
+        <mxCell id="hybrisGroup" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#D6EBFF;strokeColor=#3B82F6;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="320" y="60" width="540" height="420" as="geometry"/>
+        </mxCell>
+        <mxCell id="hybrisTitle" value="Hybris Commerce Platform" style="text;html=1;align=center;verticalAlign=top;fontSize=18;fontStyle=1;" vertex="1" parent="hybrisGroup">
+          <mxGeometry x="0" y="8" width="540" height="30" as="geometry"/>
+        </mxCell>
+
+        <!-- Altcha Extension box inside hybris -->
+        <mxCell id="altchaExt" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#FFD89A;strokeColor=#F59E0B;strokeWidth=1.5;" vertex="1" parent="hybrisGroup">
+          <mxGeometry x="60" y="60" width="420" height="170" as="geometry"/>
+        </mxCell>
+        <mxCell id="altchaTitle" value="Altcha Extension" style="text;html=1;align=center;verticalAlign=top;fontSize=16;fontStyle=1;" vertex="1" parent="altchaExt">
+          <mxGeometry x="0" y="8" width="420" height="28" as="geometry"/>
+        </mxCell>
+        <mxCell id="altchaAspect" value="AltchaAspect (AOP Advice)" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="altchaExt">
+          <mxGeometry x="20" y="48" width="380" height="90" as="geometry"/>
+        </mxCell>
+
+        <!-- sendOTP Controller inside hybris under altcha ext -->
+        <mxCell id="sendOtpCtrl" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFE8FF;strokeColor=#2563EB;strokeWidth=1.2;" vertex="1" parent="hybrisGroup">
+          <mxGeometry x="160" y="250" width="220" height="110" as="geometry"/>
+        </mxCell>
+        <mxCell id="sendOtpLabel" value="sendOTP Controller" style="text;html=1;align=center;verticalAlign=middle;fontSize=14;fontStyle=1;" vertex="1" parent="sendOtpCtrl">
+          <mxGeometry x="0" y="0" width="220" height="110" as="geometry"/>
+        </mxCell>
+
+        <!-- Cache/DB -->
+        <mxCell id="cacheBox" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#E9E9E9;strokeColor=#9CA3AF;strokeWidth=1;" vertex="1" parent="1">
+          <mxGeometry x="360" y="500" width="300" height="100" as="geometry"/>
+        </mxCell>
+        <mxCell id="cacheLabel" value="Cache / DB\n(token & reference retention)" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="cacheBox">
+          <mxGeometry x="0" y="0" width="300" height="100" as="geometry"/>
+        </mxCell>
+
+        <!-- Altcha Service (external) -->
+        <mxCell id="altchaSvc" value="" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#CFF7D6;strokeColor=#10B981;strokeWidth=2;" vertex="1" parent="1">
+          <mxGeometry x="920" y="160" width="240" height="220" as="geometry"/>
+        </mxCell>
+        <mxCell id="altchaSvcLabel" value="Altcha Service" style="text;html=1;align=center;verticalAlign=top;fontSize=16;fontStyle=1;" vertex="1" parent="altchaSvc">
+          <mxGeometry x="0" y="8" width="240" height="26" as="geometry"/>
+        </mxCell>
+        <mxCell id="altchaSvcEndpoints" value="/getChallenge\n/verifyChallenge" style="text;html=1;align=center;verticalAlign=middle;fontSize=12;" vertex="1" parent="altchaSvc">
+          <mxGeometry x="0" y="48" width="240" height="160" as="geometry"/>
+        </mxCell>
+
+        <!-- Arrows / Connectors -->
+        <mxCell id="conn1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#111111;strokeWidth=2;" edge="1" parent="1" source="storefrontGroup" target="altchaExt">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="connGetChallenge" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#111111;endArrow=block;endFill=1;strokeWidth=2;" edge="1" parent="1" source="altchaExt" target="altchaSvc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="connVerify" style="edgeStyle=elbowEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#111111;endArrow=block;endFill=1;dashed=1;strokeWidth=2;" edge="1" parent="1" source="altchaAspect" target="altchaSvc">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="connSendOTP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#111111;endArrow=block;endFill=1;strokeWidth=2;" edge="1" parent="1" source="storefrontGroup" target="sendOtpCtrl">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="connCache" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#111111;endArrow=block;endFill=1;strokeWidth=1.5;" edge="1" parent="1" source="sendOtpCtrl" target="cacheBox">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+
+        <!-- Small labels on connectors (as geometry cells) -->
+        <mxCell id="labelGet" value="GET /getChallenge" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="500" y="130" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="labelSend" value="POST /sendOTP (solve)" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="160" y="360" width="140" height="20" as="geometry"/>
+        </mxCell>
+
+        <mxCell id="labelVerify" value="/verifyChallenge" style="text;html=1;strokeColor=none;fillColor=none;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="200" width="120" height="20" as="geometry"/>
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
